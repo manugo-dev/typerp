@@ -9,13 +9,9 @@ dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 
 const ConfigSchema = z.object({
   PORT: z.coerce.number().default(3000),
-
   DATABASE_URL: z.string().url(),
-
   REDIS_URL: z.string().url(),
-
   LOCALE: z.string().default('en'),
-
   DEBUG_MODE: z.coerce.boolean().default(false),
 });
 

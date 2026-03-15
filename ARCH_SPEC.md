@@ -1,4 +1,4 @@
-# ARCH_SPEC.md
+# ARCH_SPEC_EN.md
 
 ## TRP Framework — Operational Master Specification for Claude Code
 
@@ -699,10 +699,31 @@ Modules must not communicate via arbitrary private imports and folder hacks.
 
 The framework must have a centralized, typed, scalable configuration system.
 
-It must cover at least:
+### 13.1 Primary source of truth: JSONC
 
+The primary configuration model of TRP Framework must be based on JSONC files, not on `.env` files.
+
+This means:
+- the framework runtime must not depend on `.env` as its main configuration source
+- the source of truth for framework configuration must be versionable JSONC files
+- configuration must remain easy to read, edit, diff, review, and maintain
+
+The expected direction is:
+- one global framework config JSONC file
+- optional module-specific JSONC config files
+- a typed config loader that reads, merges, validates, and exposes configuration safely
+
+Suggested layout direction:
+- `config/framework.config.jsonc`
+- `config/modules/<module-name>.config.jsonc`
+
+Environment variables may still be allowed in a limited and clearly documented way for infrastructure/runtime override scenarios, secrets injection, or host-level deployment concerns, but they must not be the primary framework configuration model.
+
+### 13.2 Covered configuration domains
+
+The configuration system must cover at least:
 - framework/global config
-- environment config
+- runtime/server config
 - DB config
 - Redis config
 - BullMQ config
@@ -710,16 +731,47 @@ It must cover at least:
 - i18n config
 - module-specific config
 
-Requirements:
+### 13.3 Requirements
 
+Requirements:
 - strong typing
 - Zod validation
-- `.env.example`
-- no secrets committed
+- JSONC as the primary persisted config format
+- no secrets committed in clear text
 - clean access pattern
 - support for module-defined config schemas
+- deterministic merge/override behavior
+- good developer ergonomics
+
+### 13.4 Module-level configuration
+
+Each runtime module should be able to define and validate its own configuration schema.
+
+The framework must support:
+- global config shared across the framework
+- per-module JSONC config where needed
+- clear ownership of config keys
+- schema validation per module
+- future compatibility with third-party plugins
+
+### 13.5 Root source of truth for repository config files
+
+The repository must keep a single source of truth at the root for:
+- ESLint strategy
+- Prettier strategy
+- TypeScript strategy
+
+This means:
+- root config files own the canonical lint/format/tsconfig behavior
+- modules and packages must extend/reference the root strategy rather than inventing ad hoc local configurations
+- context-specific tsconfigs may exist, but they must be rooted in a central strategy and remain documented
+- duplicated conflicting local configs should be avoided unless there is a very strong reason
+
+### 13.6 Rule for implementation agents
 
 Do not allow ad hoc config scattering across the repo.
+Do not reintroduce `.env` as the primary framework configuration model.
+Keep framework config JSONC-based and root tooling config centralized.
 
 ---
 
@@ -940,6 +992,8 @@ Monorepo foundation:
 - root scripts
 - docs
 - tsconfig context strategy
+- JSONC-based primary framework configuration
+- root single-source-of-truth strategy for ESLint, Prettier, and tsconfig
 
 ### Phase 2
 Shared packages and foundations:
