@@ -1,0 +1,28 @@
+{
+  "name": "trp-framework-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "nx run-many -t lint",
+    "format": "prettier --write .",
+    "typecheck": "nx run-many -t typecheck",
+    "test": "nx run-many -t test",
+    "build": "nx run-many -t build",
+    "build:runtime": "node tooling/scripts/build-runtime.mjs",
+    "dev": "nx run-many -t dev",
+    "dev:watch": "nx run-many -t dev:watch",
+    "clean": "nx run-many -t clean"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@citizenfx/client": "2.0.26803-1",
+    "@citizenfx/server": "2.0.26803-1",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "nx": "^20.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0",
+    "zod": "next"
+  }
+}

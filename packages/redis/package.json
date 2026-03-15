@@ -1,0 +1,12 @@
+{
+  "name": "@trp/redis",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@trp/config": "workspace:*",
+    "bullmq": "^5.71.0",
+    "ioredis": "^5.10.0"
+  }
+}

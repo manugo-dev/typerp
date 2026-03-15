@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["@citizenfx/client"],
+    "lib": ["es2022"]
+  },
+  "include": ["**/client/**/*.ts", "**/*.client.ts"]
+}

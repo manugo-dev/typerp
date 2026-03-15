@@ -1,0 +1,5 @@
+{
+  "welcome": "Welcome to TRP Framework",
+  "error.unknown": "An unknown error has occurred",
+  "player.joined": "Player {playerName} has joined the server"
+}
