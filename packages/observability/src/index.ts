@@ -8,9 +8,9 @@ export function getLogger(name: string = 'trp-framework'): pino.Logger {
     const config = getConfig();
     const options: pino.LoggerOptions = {
       name,
-      level: config.DEBUG_MODE ? 'debug' : 'info',
+      level: config.debugMode ? 'debug' : config.logLevel,
     };
-    if (config.DEBUG_MODE) {
+    if (config.debugMode) {
       options.transport = {
         target: 'pino-pretty',
         options: { colorize: true },

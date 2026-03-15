@@ -1,0 +1,27 @@
+// TRP Framework — Primary Configuration File
+// This is the single source of truth for the framework's global configuration.
+// Edit this file to control framework behavior at runtime.
+// 
+// Important rules:
+//  - NO secrets should be committed here (use env variable overrides for DATABASE_URL, REDIS_URL, etc.)
+//  - This file supports JSONC (JSON with Comments)
+//  - All keys are validated with Zod when the framework starts up
+{
+  // Framework identity
+  "name": "trp-framework",
+  "version": "0.1.0",
+
+  // General runtime settings
+  "locale": "en",
+  "timezone": "UTC",
+  "debugMode": false,
+
+  // Server settings
+  "server": {
+    "port": 30120,
+    "maxPlayers": 64
+  },
+
+  // Logging level: "error" | "warn" | "info" | "debug"
+  "logLevel": "info"
+}

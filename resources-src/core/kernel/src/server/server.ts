@@ -1,53 +1,71 @@
 /**
- * Core Kernel - Server Runtime
+ * Core Kernel — Server Runtime
  *
- * Establishes the server-side module registry and core framework initialization.
+ * Bootstrap sequence for the TRP Framework server-side kernel.
+ * Establishes the service registry and exposes the public runtime API pattern
+ * for cross-resource interaction.
+ *
+ * Context: SERVER only — no browser/NUI APIs, no client-only assumptions.
  */
 
 import { KERNEL_RESOURCE_NAME, KernelServiceManifest } from '../shared/index.js';
 import { getConfig } from '@trp/config';
 
-console.log(`[${KERNEL_RESOURCE_NAME}] Initializing TRP Framework Kernel (Server)...`);
+// ---------------------------------------------------------------------------
+// Service Registry
+// ---------------------------------------------------------------------------
 
-// Provide a minimal service registration mechanism
 class ServiceRegistry {
-  private services = new Map<string, any>();
+  private services = new Map<string, unknown>();
 
-  public register(name: string, service: any) {
+  register(name: string, service: unknown): void {
     if (this.services.has(name)) {
       console.warn(`[Kernel] Service '${name}' is already registered. Overwriting.`);
     }
     this.services.set(name, service);
-    console.log(`[Kernel] Registered service: ${name}`);
+    console.log(`[Kernel] Service registered: ${name}`);
   }
 
-  public get(name: string): any {
-    return this.services.get(name);
+  get<T = unknown>(name: string): T | undefined {
+    return this.services.get(name) as T | undefined;
   }
 
-  public getManifests(): KernelServiceManifest[] {
+  getManifests(): KernelServiceManifest[] {
     return Array.from(this.services.keys()).map((name) => ({
       name,
-      version: '1.0.0', // placeholder
+      version: '1.0.0',
       ready: true,
     }));
   }
 }
 
+// ---------------------------------------------------------------------------
+// Bootstrap
+// ---------------------------------------------------------------------------
+
+console.log(`[${KERNEL_RESOURCE_NAME}] Initializing TRP Framework Kernel (server)...`);
+
 const registry = new ServiceRegistry();
 
-// Export the registry to other FiveM resources via the global 'exports' object.
-// This establishes the public cross-resource API pattern.
-global.exports('registerService', (name: string, service: any) => registry.register(name, service));
+// Load and validate the framework configuration from JSONC source of truth.
+// Infrastructure secrets (DATABASE_URL, REDIS_URL) come from env var overrides.
+const config = getConfig();
+console.log(`[Kernel] Config loaded — locale: ${config.locale}, logLevel: ${config.logLevel}`);
+
+// ---------------------------------------------------------------------------
+// Public Runtime API (cross-resource exports)
+//
+// Other FiveM resources consume these via:
+//   exports['core-kernel'].registerService(name, service)
+//   exports['core-kernel'].getService(name)
+//
+// This is the preferred cross-resource communication pattern for TRP Framework.
+// Use it for stateful domain services, NOT for trivial utility wrappers.
+// ---------------------------------------------------------------------------
+
+global.exports('registerService', (name: string, service: unknown) => registry.register(name, service));
 global.exports('getService', (name: string) => registry.get(name));
 global.exports('getServicesManifest', () => registry.getManifests());
-
-// Validate config loading
-try {
-  const config = getConfig();
-  console.log(`[Kernel] Server timezone validated: ${config.TIMEZONE}`);
-} catch (e) {
-  console.error(`[Kernel] Failed to load config!`, e);
-}
+global.exports('getFrameworkConfig', () => config);
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Server initialization complete.`);

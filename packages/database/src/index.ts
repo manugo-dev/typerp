@@ -5,8 +5,13 @@ import * as schema from './schema/index.js';
 
 const config = getConfig();
 
+const databaseUrl = config.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error('[Database] DATABASE_URL is not configured. Set DATABASE_URL as an environment variable.');
+}
+
 // Basic healthcheck-friendly connection pattern
-const queryClient = postgres(config.DATABASE_URL, { max: 10 });
+const queryClient = postgres(databaseUrl, { max: 10 });
 export const db = drizzle(queryClient, { schema });
 
 // Re-export common concepts for downstream modules

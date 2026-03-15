@@ -6,7 +6,7 @@
   "sideEffects": false,
   "main": "src/index.ts",
   "dependencies": {
-    "dotenv": "^17.3.1",
+    "jsonc-parser": "^3.3.1",
     "zod": "next"
   },
   "scripts": {
