@@ -8,5 +8,10 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "zod": "next"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -b"
   }
 }

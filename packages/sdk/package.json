@@ -11,5 +11,10 @@
   },
   "dependencies": {
     "zod": "next"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -b"
   }
 }

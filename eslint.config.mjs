@@ -1,18 +1,16 @@
-export default [
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     ignores: ['**/dist/**', '**/node_modules/**', '**/.nx/**', '**/*.js'],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
-    languageOptions: {
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
-    },
     rules: {
-      // Basic rules for the monorepo root
       'no-console': 'off',
     },
-  },
-];
+  }
+);

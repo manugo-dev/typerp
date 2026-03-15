@@ -8,5 +8,10 @@
     "@trp/config": "workspace:*",
     "bullmq": "^5.71.0",
     "ioredis": "^5.10.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -b"
   }
 }

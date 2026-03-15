@@ -9,7 +9,7 @@ export function getRedisConnection(): Redis {
   if (!sharedRedisConnection) {
     const config = getConfig();
     sharedRedisConnection = new Redis(config.REDIS_URL, {
-      maxRetriesPerRequest: null,
+      maxRetriesPerRequest: null as any, // BullMQ requires null, but ioredis types sometimes complain under exactOptionalPropertyTypes
     });
   }
   return sharedRedisConnection;
@@ -17,11 +17,11 @@ export function getRedisConnection(): Redis {
 
 // BullMQ helpers
 export function createQueue(name: string) {
-  return new Queue(name, { connection: getRedisConnection() });
+  return new Queue(name, { connection: getRedisConnection() as any });
 }
 
 export function createWorker<T, R>(name: string, processor: (job: Job<T, R>) => Promise<R>) {
-  return new Worker(name, processor, { connection: getRedisConnection() });
+  return new Worker(name, processor, { connection: getRedisConnection() as any });
 }
 
 export { Queue, Worker, Job, Redis };

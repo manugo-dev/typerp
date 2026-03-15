@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["../../tooling/**/*.ts", "../../tooling/**/*.mts"]
+  "include": ["./tooling/**/*.ts", "./tooling/**/*.mts"]
 }

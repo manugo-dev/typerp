@@ -7,5 +7,10 @@
   "main": "src/index.ts",
   "dependencies": {
     "@trp/contracts": "workspace:*"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -b"
   }
 }
