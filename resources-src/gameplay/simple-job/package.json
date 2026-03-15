@@ -1,0 +1,20 @@
+{
+  "name": "@trp/job-simple",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "main": "src/server/server.ts",
+  "dependencies": {
+    "@trp/config": "workspace:*",
+    "@trp/contracts": "workspace:*",
+    "@trp/shared": "workspace:*"
+  },
+  "fxmanifest": {
+    "dependencies": ["core-kernel", "identity"]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  }
+}

@@ -6,3 +6,5 @@ export const coreMetadata = pgTable('core_metadata', {
   value: text('value'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export * from "./identity"

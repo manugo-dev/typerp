@@ -116,6 +116,45 @@ importers:
         specifier: workspace:*
         version: link:../contracts
 
+  resources-src/core/kernel:
+    dependencies:
+      '@trp/config':
+        specifier: workspace:*
+        version: link:../../../packages/config
+      '@trp/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      '@trp/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
+
+  resources-src/gameplay/identity:
+    dependencies:
+      '@trp/config':
+        specifier: workspace:*
+        version: link:../../../packages/config
+      '@trp/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      '@trp/database':
+        specifier: workspace:*
+        version: link:../../../packages/database
+      '@trp/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
+
+  resources-src/gameplay/simple-job:
+    dependencies:
+      '@trp/config':
+        specifier: workspace:*
+        version: link:../../../packages/config
+      '@trp/contracts':
+        specifier: workspace:*
+        version: link:../../../packages/contracts
+      '@trp/shared':
+        specifier: workspace:*
+        version: link:../../../packages/shared
+
 packages:
 
   '@babel/runtime@7.28.6':

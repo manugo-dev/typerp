@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { getConfig } from '@trp/config';
-import * as schema from './schema/index.js';
+import * as schema from './schema';
 
 const config = getConfig();
 

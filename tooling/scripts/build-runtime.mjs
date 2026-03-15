@@ -8,9 +8,31 @@ const RESOURCES_SRC = path.join(ROOT_DIR, 'resources-src');
 const OUTPUT_DIR = path.join(ROOT_DIR, '../resources/[trp-framework]');
 
 /**
+ * Recursively find all resource directories that contain a package.json.
+ */
+function findResources(dir) {
+  const results = [];
+  if (!fs.existsSync(dir)) return results;
+
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const fullPath = path.join(dir, entry.name);
+    const pkgPath = path.join(fullPath, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      results.push(fullPath);
+    } else {
+      // Recurse deeper (category directories like gameplay/, core/)
+      results.push(...findResources(fullPath));
+    }
+  }
+  return results;
+}
+
+/**
  * Builds a specific FiveM resource using esbuild and generates its fxmanifest.lua.
  *
- * @param {string} sourcePath Path to the resource's source folder (e.g., resources-src/core/kernel)
+ * @param {string} sourcePath Path to the resource's source folder
  */
 async function buildResource(sourcePath) {
   const pkgPath = path.join(sourcePath, 'package.json');
@@ -38,6 +60,7 @@ async function buildResource(sourcePath) {
   const buildManifest = {
     server: false,
     client: false,
+    dependencies: pkg.fxmanifest?.dependencies ?? [],
   };
 
   try {
@@ -47,9 +70,12 @@ async function buildResource(sourcePath) {
       setup(build) {
         build.onResolve({ filter: /^@trp\// }, (args) => {
           const pkgName = args.path.replace('@trp/', '');
-          // Point directly to the TypeScript source file in the packages directory
           const sourcePath = path.join(ROOT_DIR, 'packages', pkgName, 'src', 'index.ts');
-          return { path: sourcePath };
+          if (fs.existsSync(sourcePath)) {
+            return { path: sourcePath };
+          }
+          // Not a workspace package — let esbuild handle it normally
+          return undefined;
         });
       },
     };
@@ -65,7 +91,11 @@ async function buildResource(sourcePath) {
         format: 'cjs',
         minify: true,
         plugins: [workspaceResolverPlugin],
-        external: ['dotenv', 'zod', 'ioredis', 'bullmq', 'postgres', 'drizzle-orm'], // Native external modules
+        external: [
+          'dotenv', 'zod', 'ioredis', 'bullmq', 'postgres',
+          'drizzle-orm', 'drizzle-orm/postgres-js', 'drizzle-orm/pg-core',
+          'jsonc-parser', 'pino', 'pino-pretty',
+        ],
       });
       buildManifest.server = true;
     }
@@ -126,39 +156,42 @@ function generateManifest(outDir, manifestData) {
     lines.push(``);
   }
 
+  // Dependencies
+  if (manifestData.dependencies && manifestData.dependencies.length > 0) {
+    lines.push(`dependencies {`);
+    for (const dep of manifestData.dependencies) {
+      lines.push(`  '${dep}',`);
+    }
+    lines.push(`}`);
+    lines.push(``);
+  }
+
   const manifestContent = lines.join('\n');
   const manifestPath = path.join(outDir, 'fxmanifest.lua');
   fs.writeFileSync(manifestPath, manifestContent);
 
-  // 4. Build Validation (Step 5)
+  // Validation
   if (!fs.existsSync(manifestPath) || fs.statSync(manifestPath).size === 0) {
     console.error(`[VALIDATION ERROR] Manifest missing or empty at ${manifestPath}`);
     process.exit(1);
   }
 }
 
-// Scrape categories (core, gameplay, etc.)
-const categories = fs
-  .readdirSync(RESOURCES_SRC, { withFileTypes: true })
-  .filter((dirent) => dirent.isDirectory())
-  .map((dirent) => dirent.name);
-
 async function run() {
-  console.log('🚀 Starting TRP Framework Runtime Build Phase...');
+  console.log('🚀 Starting TRP Framework Runtime Build...');
 
-  for (const category of categories) {
-    const categoryPath = path.join(RESOURCES_SRC, category);
-    const resources = fs
-      .readdirSync(categoryPath, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name);
+  const resources = findResources(RESOURCES_SRC);
 
-    for (const resource of resources) {
-      await buildResource(path.join(categoryPath, resource));
-    }
+  if (resources.length === 0) {
+    console.warn('[WARN] No runtime resources found under resources-src/');
+    return;
   }
 
-  console.log('✅ TRP Framework Build Complete.');
+  for (const resourcePath of resources) {
+    await buildResource(resourcePath);
+  }
+
+  console.log(`✅ TRP Framework Build Complete (${resources.length} resource(s)).`);
 }
 
 run().catch((err) => {

@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": false,
   "main": "src/index.ts",
   "dependencies": {
     "jsonc-parser": "^3.3.1",

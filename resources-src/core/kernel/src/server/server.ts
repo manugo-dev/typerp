@@ -8,8 +8,10 @@
  * Context: SERVER only — no browser/NUI APIs, no client-only assumptions.
  */
 
-import { KERNEL_RESOURCE_NAME, KernelServiceManifest } from '../shared/index.js';
+import {  KernelServiceManifest } from '../types';
 import { getConfig } from '@trp/config';
+
+ const KERNEL_RESOURCE_NAME = 'core-kernel';
 
 // ---------------------------------------------------------------------------
 // Service Registry

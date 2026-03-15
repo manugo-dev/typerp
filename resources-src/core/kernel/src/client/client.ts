@@ -9,21 +9,21 @@ console.log(`[${KERNEL_RESOURCE_NAME}] Initializing TRP Framework Kernel (Client
 
 // A mirrored minimal registry for the client.
 class ClientServiceRegistry {
-  private services = new Map<string, any>();
+  private services = new Map<string, unknown>();
 
-  public register(name: string, service: any) {
+  public register(name: string, service: unknown) {
     this.services.set(name, service);
     console.log(`[Kernel:Client] Registered service: ${name}`);
   }
 
-  public get(name: string): any {
+  public get(name: string): unknown {
     return this.services.get(name);
   }
 }
 
 const registry = new ClientServiceRegistry();
 
-globalThis.exports('registerClientService', (name: string, service: any) =>
+globalThis.exports('registerClientService', (name: string, service: unknown) =>
   registry.register(name, service),
 );
 globalThis.exports('getClientService', (name: string) => registry.get(name));

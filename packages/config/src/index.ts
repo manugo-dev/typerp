@@ -16,19 +16,12 @@ import * as path from 'node:path';
 // ---------------------------------------------------------------------------
 // Schema
 // ---------------------------------------------------------------------------
-
-const ServerSchema = z.object({
-  port: z.number().default(30120),
-  maxPlayers: z.number().default(64),
-});
-
 const FrameworkConfigSchema = z.object({
   name: z.string().default('trp-framework'),
   version: z.string().default('0.0.0'),
   locale: z.string().default('en'),
   timezone: z.string().default('UTC'),
   debugMode: z.boolean().default(false),
-  server: ServerSchema.default({}),
   logLevel: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
 
   // Infrastructure secrets: sourced from env vars only and NOT stored in jsonc
