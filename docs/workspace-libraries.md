@@ -4,14 +4,14 @@ Workspace libraries live inside `packages/` and contain code intended to be cons
 
 ## Base Packages
 
-- `@trp/contracts`: The single source of truth for base shapes, identifiers, and cross-cutting Zod schemas.
-- `@trp/config`: A typed environment and config parsing foundation using Zod. Extracts defaults and merges them with `.env`.
+- `@trp/contracts`: The single source of truth for shared contracts/types with domain subpaths such as `@trp/contracts/identity/types` and `@trp/contracts/identity/schemas`.
+- `@trp/config`: JSONC-first config loading via `jsonc-parser`, validated with Zod 4, with environment variables limited to infrastructure overrides.
 - `@trp/shared`: Pure helpers and domain-agnostic generic functions that can safely run anywhere.
 
 ## Infrastructure Foundations
 
-- `@trp/database`: Base abstraction setting up Postgres connections via drizzle-orm. Downstream packages define their schemas, but this holds the driver implementation.
-- `@trp/redis`: Connection logic for Redis caching and BullMQ queues. Contains factories for job processors.
+- `@trp/database`: Internal DB implementation package exposing schema and Drizzle primitives/factories; runtime ownership remains with the kernel.
+- `@trp/redis`: Internal Redis/BullMQ connection/factory package consumed by kernel-owned infrastructure bootstrapping.
 - `@trp/observability`: Contains `pino` logger bindings, set up to enforce structured, standard logging across all internal and runtime components.
 
 ## Core Services

@@ -36,7 +36,7 @@ It must not be confused with `ARCH_SPEC.md`.
 
 Rule:
 
-- Claude Code must not try to implement everything in this document during the early phases unless a phase explicitly asks for it.
+- The AI agent must not try to implement everything in this document during the early phases unless a phase explicitly asks for it.
 - The technical architecture must remain compatible with these future directions.
 
 ---
@@ -315,9 +315,9 @@ It must especially preserve room for:
 
 ---
 
-## 14. Priority rule for Claude Code
+## 14. Priority rule for AI agent
 
-If Claude Code is working on early technical phases, it must use this document only as future compatibility guidance, not as an instruction to implement all of these systems immediately.
+If the AI agent is working on early technical phases, it must use this document only as future compatibility guidance, not as an instruction to implement all of these systems immediately.
 
 The early priority remains:
 

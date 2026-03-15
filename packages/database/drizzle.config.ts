@@ -9,7 +9,7 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: config.DATABASE_URL,
+    url: config.DATABASE_URL ?? 'postgresql://postgres:postgres@127.0.0.1:5432/trp_framework',
   },
   verbose: true,
   strict: true,

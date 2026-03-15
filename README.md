@@ -21,9 +21,11 @@ Runtime output will be generated into `../resources/[trp-framework]/`.
 Real runtime features belong in `resources-src/<category>/<resource_name>`.
 When building runtime projects, abide by these explicit contexts:
 
-- Server execution logic belongs in `src/server/server.ts`
-- Client execution logic belongs in `src/client/client.ts`
-- Shared utilities & types belong in `src/shared/index.ts`
+- Server execution entry belongs in `src/server/main.server.ts` (or another clear `*.server.ts` entrypoint)
+- Client execution entry belongs in `src/client/main.client.ts` (or another clear `*.client.ts` entrypoint)
+- Resource-local shared runtime code belongs in `src/shared/*.shared.ts`
+
+Resource-local `shared/` is only for small code reused by the same resource's client and server contexts. Reuse across multiple resources must live in `packages/*`.
 
 ### Build Pipeline
 
@@ -31,3 +33,5 @@ Execute `pnpm build:runtime` from the monorepo root.
 This utilizes `esbuild` to transpile and bundle your source projects independently. It will automatically inline your internal `@trp/*` workspace packages so FiveM gets flat execution files.
 
 The bundler also automatically constructs `fxmanifest.lua` based on the found source files, emitting everything directly to the deployed `../resources/[trp-framework]/<resource_name>` folder.
+
+Infrastructure ownership rule: runtime DB/Redis/BullMQ initialization is centralized in `@trp/core-kernel`. Gameplay resources consume stateful capabilities through runtime exports/public APIs.

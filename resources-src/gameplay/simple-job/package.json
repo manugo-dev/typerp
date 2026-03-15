@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "main": "src/server/server.ts",
+  "main": "src/server/main.server.ts",
   "dependencies": {
     "@trp/config": "workspace:*",
-    "@trp/contracts": "workspace:*",
-    "@trp/shared": "workspace:*"
+    "@trp/contracts": "workspace:*"
   },
   "fxmanifest": {
-    "dependencies": ["core-kernel", "identity"]
+    "dependencies": [
+      "core-kernel",
+      "identity"
+    ]
   },
   "scripts": {
     "lint": "eslint .",

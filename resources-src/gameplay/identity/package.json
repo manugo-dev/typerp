@@ -6,12 +6,12 @@
   "main": "src/server/main.server.ts",
   "dependencies": {
     "@trp/config": "workspace:*",
-    "@trp/contracts": "workspace:*",
-    "@trp/database": "workspace:*",
-    "@trp/shared": "workspace:*"
+    "@trp/contracts": "workspace:*"
   },
   "fxmanifest": {
-    "dependencies": ["core-kernel"]
+    "dependencies": [
+      "core-kernel"
+    ]
   },
   "scripts": {
     "lint": "eslint .",

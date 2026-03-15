@@ -29,6 +29,45 @@ function findResources(dir) {
   return results;
 }
 
+function findEntrypoint(contextDir, suffix) {
+  if (!fs.existsSync(contextDir)) return null;
+
+  const candidates = [];
+  const stack = [contextDir];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(fullPath);
+        continue;
+      }
+      if (entry.isFile() && fullPath.endsWith(suffix)) {
+        candidates.push(fullPath);
+      }
+    }
+  }
+
+  const preferred = candidates.find((candidate) => candidate.endsWith(`main${suffix}`));
+  if (preferred) return preferred;
+
+  const secondary = candidates.find((candidate) => candidate.endsWith(`index${suffix}`));
+  if (secondary) return secondary;
+
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  if (candidates.length > 1) {
+    throw new Error(
+      `Multiple entrypoints found in ${contextDir} for ${suffix}. Add main${suffix} to disambiguate.`,
+    );
+  }
+
+  return null;
+}
+
 /**
  * Builds a specific FiveM resource using esbuild and generates its fxmanifest.lua.
  *
@@ -42,11 +81,11 @@ async function buildResource(sourcePath) {
   const rawName = pkg.name; // e.g., @trp/core-kernel
   const resourceName = rawName.startsWith('@trp/') ? rawName.replace('@trp/', '') : rawName;
 
-  const srcServer = path.join(sourcePath, 'src/server/server.ts');
-  const srcClient = path.join(sourcePath, 'src/client/client.ts');
+  const srcServer = findEntrypoint(path.join(sourcePath, 'src', 'server'), '.server.ts');
+  const srcClient = findEntrypoint(path.join(sourcePath, 'src', 'client'), '.client.ts');
 
-  const hasServer = fs.existsSync(srcServer);
-  const hasClient = fs.existsSync(srcClient);
+  const hasServer = srcServer !== null;
+  const hasClient = srcClient !== null;
 
   if (!hasServer && !hasClient) {
     console.warn(`[WARN] Skipping ${resourceName}: No valid entry points found.`);
@@ -69,11 +108,17 @@ async function buildResource(sourcePath) {
       name: 'workspace-resolver',
       setup(build) {
         build.onResolve({ filter: /^@trp\// }, (args) => {
-          const pkgName = args.path.replace('@trp/', '');
-          const sourcePath = path.join(ROOT_DIR, 'packages', pkgName, 'src', 'index.ts');
-          if (fs.existsSync(sourcePath)) {
-            return { path: sourcePath };
+          const [, packageName, ...subpathParts] = args.path.split('/');
+          const packageRoot = path.join(ROOT_DIR, 'packages', packageName, 'src');
+          const entryPath =
+            subpathParts.length === 0
+              ? path.join(packageRoot, 'index.ts')
+              : path.join(packageRoot, ...subpathParts) + '.ts';
+
+          if (fs.existsSync(entryPath)) {
+            return { path: entryPath };
           }
+
           // Not a workspace package — let esbuild handle it normally
           return undefined;
         });
@@ -89,13 +134,11 @@ async function buildResource(sourcePath) {
         target: 'node22',
         platform: 'node',
         format: 'cjs',
+        treeShaking: true,
         minify: true,
+        metafile: true,
         plugins: [workspaceResolverPlugin],
-        external: [
-          'dotenv', 'zod', 'ioredis', 'bullmq', 'postgres',
-          'drizzle-orm', 'drizzle-orm/postgres-js', 'drizzle-orm/pg-core',
-          'jsonc-parser', 'pino', 'pino-pretty',
-        ],
+        external: ['node:*'],
       });
       buildManifest.server = true;
     }
@@ -109,7 +152,9 @@ async function buildResource(sourcePath) {
         target: 'es2022',
         platform: 'browser',
         format: 'iife',
+        treeShaking: true,
         minify: true,
+        metafile: true,
         plugins: [workspaceResolverPlugin],
       });
       buildManifest.client = true;

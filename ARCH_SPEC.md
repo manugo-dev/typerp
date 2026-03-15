@@ -1,277 +1,82 @@
-# ARCH_SPEC.md
+# TRP Framework — ARCH_SPEC
 
-## TRP Framework — Operational Master Specification for the AI agent
+## 1. Purpose of This Document
 
-Status: single source of truth  
-Project: `trp-framework`  
-Source repository: `server-data/trp-framework/`  
-Final FiveM runtime output: `server-data/resources/[trp-framework]/<resource-name>`
+This document is the primary source of truth for the technical architecture, implementation constraints, repository structure, runtime model, coding standards, and phased delivery rules of **TRP Framework**.
 
----
+Any AI agent or human contributor working on this repository must read and follow this document before making changes.
 
-## 1. Purpose of this document
+This specification is intentionally strict. It exists to keep the project:
 
-This file defines the architecture, constraints, frozen decisions, quality rules, runtime rules, build strategy, phase plan, and acceptance criteria for any AI agent working on TRP Framework.
+- maintainable
+- scalable
+- type-safe
+- performance-aware
+- modular
+- deterministic in runtime behavior
+- practical to implement without overengineering
 
-Mandatory rules:
-
-- Before changing the repository, the AI agent must read this file completely.
-- If a future instruction conflicts with a frozen decision in this file, the AI agent must stop and ask for confirmation before breaking that decision.
-- The AI agent must not improvise major stack changes, runtime layout changes, manifest strategy changes, or public API changes unless explicitly instructed.
-- The AI agent must prefer real, minimal, coherent implementations over pseudocode or empty architecture.
-- The AI agent must keep the repository healthy after each phase: linting, typechecking, and building must remain functional where applicable.
-- All project-facing documents and files intended for AI implementation workflows should be written in English.
+This document is focused on **framework architecture and implementation**.
+Future higher-level gameplay and systems design lives in `GAME_DESIGN_SPEC.md` and must not be treated as mandatory implementation scope for early phases unless explicitly requested.
 
 ---
 
-## 2. Project vision
+## 2. Project Identity
 
-TRP Framework is a long-term, TypeScript-first, modular, type-safe FiveM roleplay framework built from scratch.
+- **Project name:** `trp-framework`
+- **Repository root:** `server-data/trp-framework/`
+- **FiveM runtime output target:** `server-data/resources/[trp-framework]/`
+- **Source runtime resources root:** `server-data/trp-framework/resources-src/`
 
-Strategic goals:
-
-- build a small, stable kernel/core
-- support decoupled gameplay modules
-- make third-party plugin/module development straightforward
-- produce clean, correct, deterministic FiveM runtime output
-- provide a modern, fast, pragmatic developer experience
-- make framework upgrades safe for framework consumers
-- include a realistic compatibility strategy for ESX/QBCore-oriented Lua resources
-- remain architecturally capable of scaling toward OneSync Infinity high-concurrency targets, including the goal of up to 2048 concurrent players, without pretending that software alone guarantees that outcome
-
-TRP Framework must not use ESX, QBCore, or any other RP framework as a direct base. Conceptual inspiration is allowed, but the implementation must be original.
+The source repository must not live inside FiveM's runtime `resources/` directory.
+The repository lives beside it, and build/runtime targets emit compiled resources into the final runtime location.
 
 ---
 
-## 3. Non-negotiable principles
+## 3. High-Level Goals
 
-### 3.1 Do not reinvent the wheel
+TRP Framework is a TypeScript-first, modular, server-authoritative FiveM roleplay framework built from scratch.
 
-TRP Framework must avoid reinventing the wheel.
+The framework must:
 
-The project should prefer mature, well-maintained, widely adopted tools and libraries when they solve the problem well enough and fit the architecture.
+- be original and not use ESX, QBCore, or any other RP framework as its base
+- support long-term extensibility for internal and third-party modules/plugins
+- be architected for serious scalability targets, including OneSync Infinity servers aiming toward high concurrency
+- provide a clean kernel/core foundation
+- make runtime resources deterministic and easy to operate in FiveM
+- support safe upgrades for framework consumers
+- support compatibility layers for legacy ESX/QBCore-oriented Lua scripts in later phases
+- avoid overengineering and avoid reinventing the wheel
 
-General rule:
-
-- use proven external tooling by default
-- integrate it cleanly
-- create custom internal solutions only when there is a clear and justified reason
-
-Approved and preferred tools in this project:
-
-- Zod 4 for validation
-- Drizzle ORM for database access
-- BullMQ for queues
-- Redis for cache/queue backend
-- esbuild for runtime bundling
-- Nx for monorepo orchestration
-- pnpm workspaces for package management
-- Vue 3 + Vite + Pinia + Tailwind CSS v4 + Base UI for NUI
-- Vitest for testing
-- GitHub Actions for CI/CD
-- jsonc-parser for JSONC parsing/manipulation
-
-Custom wrappers or internal abstractions are only justified when they:
-
-- improve consistency
-- protect public APIs
-- reduce real coupling
-- improve DX without hiding essential behavior
-- solve a specifically FiveM/TRP problem that general tooling does not solve well
-
-### 3.2 No overengineering
-
-This is a large project. Do not spend months rebuilding infrastructure that already exists and works well.
-
-Prioritize:
-
-- delivery
-- maintainability
-- clarity
-- performance where it actually matters
-- clean public boundaries
-- pragmatic integration of proven tooling
-
-### 3.3 Server-authoritative gameplay
-
-Sensitive gameplay logic must be decided on the server.
-
-This especially applies to:
-
-- money
-- identity
-- permissions
-- inventory
-- progression
-- jobs
-- critical gameplay state
-
-Client and NUI may handle UX, presentation, input, and visual feedback, but they are not the source of truth for business logic.
-
-### 3.4 Small kernel, modular domains
-
-The framework must not become a monolith.
-
-It must have:
-
-- a small, stable kernel
-- decoupled gameplay/domain modules
-- typed public boundaries
-- third-party extensibility without modifying kernel internals
-
-### 3.5 Clear public APIs
-
-The project must distinguish clearly between:
-
-- public APIs intended for framework consumers and third-party modules
-- internal implementation details
-
-Framework consumers must depend only on documented public packages and runtime public APIs.
-
-### 3.6 Clean, deterministic FiveM runtime
-
-The runtime output must be:
-
-- deterministic
-- clean
-- free of ghost resources
-- independently restartable by resource
-- ready to run inside real FiveM `resources/`
-
-### 3.7 Internationalization from the start
-
-The framework must be internationalization-ready from the beginning.
-
-It must support:
-
-- one active server-selected language at a time
-- future module-local translation assets
-- fallback language behavior
-- localization across server, client, runtime modules, compatibility layers, and NUI
-
-Per-player live runtime language switching is not required in v1.
-
-### 3.8 Clean code first
-
-TRP Framework must follow strict clean-code standards.
-
-Rules:
-
-- code should be self-explanatory whenever possible
-- naming must be descriptive enough to make the flow understandable without comments
-- functions, variables, files, types, and modules must use clear, explicit names
-- avoid vague names like `data`, `item`, `obj`, `temp`, `helper`, `manager`, `util`, `misc`, `stuff`, unless the abstraction is truly generic and clearly scoped
-- avoid overly large files and overly large functions
-- prefer composition over giant multi-purpose units
-- keep modules cohesive
-- keep imports explicit and intentional
-
-### 3.9 Minimal comments policy
-
-Comments must be minimized.
-
-Rules:
-
-- do not comment what the code already says clearly
-- do not use comments as a substitute for good naming
-- only use comments when truly necessary, such as:
-  - a non-obvious FiveM/runtime limitation
-  - a cross-runtime constraint
-  - a subtle performance tradeoff
-  - a business-rule reason that is not obvious from code alone
-  - a workaround that future maintainers must understand
-
-The default expectation is code that explains itself through naming and structure.
+The target of 2048 concurrent players is an architectural ambition, not a guarantee from software alone.
+The framework must be designed to make such scale realistic through good architecture, not through unrealistic promises.
 
 ---
 
-## 4. Frozen stack decisions
+## 4. Non-Goals for Early Phases
 
-### 4.1 Monorepo and project base
+The early phases must not try to implement the entire game.
+They must build a strong platform foundation first.
 
-Frozen decisions:
+Out of scope for early phases unless explicitly requested:
 
-- monorepo with `pnpm workspaces`
-- task/project orchestration with `Nx`
-- source repository root: `server-data/trp-framework/`
-- runtime source projects under `resources-src/`
-- final FiveM runtime output under `../resources/[trp-framework]/`
+- full economy system
+- full inventory system
+- full housing system
+- full territory control system
+- complete crime/justice systems
+- complete character creator
+- complete moderation/toxicity systems
+- complete compatibility with every ESX/QBCore script
+- final administration panel implementation
 
-### 4.2 Validation
-
-Frozen decision:
-
-- use **Zod 4 only** for runtime validation and schema-based contracts
-
-No Typia. No Valibot as a primary validation strategy. No custom validation framework.
-
-### 4.3 Persistence and data
-
-Frozen decisions:
-
-- PostgreSQL as the primary database
-- Drizzle ORM as the primary DB access layer
-- Redis as cache/queue backend
-- BullMQ for queueing and async jobs
-
-### 4.4 NUI
-
-Frozen stack:
-
-- Vue 3
-- Vite
-- Pinia
-- Tailwind CSS v4
-- Base UI
-
-### 4.5 Development tooling
-
-Frozen decisions:
-
-- TypeScript
-- ESLint
-- Prettier
-- Vitest
-- Changesets
-- Docker + Docker Compose
-- GitHub Actions
-
-### 4.6 Runtime bundling
-
-Frozen decision:
-
-- use **esbuild** as the runtime bundler for FiveM resources
-
-### 4.7 JavaScript runtime on FiveM server
-
-Frozen decision:
-
-- server-side JS resources must use `node_version '22'` in generated manifests where applicable
-
-### 4.8 Configuration format
-
-Frozen decisions:
-
-- framework configuration is **JSONC-based**
-- `.env` is not the primary framework configuration model
-- `jsonc-parser` is the primary library for parsing/manipulating JSONC configuration
-- configuration objects must still be validated with Zod after parsing
-
-### 4.9 Future admin panel
-
-Future direction only, not for v1 foundation:
-
-- Fastify + React
-
-Do not implement the admin panel in early phases unless explicitly requested.
+The initial priority is the framework foundation, build pipeline, runtime structure, typing strategy, core services, example modules, and future compatibility paths.
 
 ---
 
-## 5. Physical repository and runtime model
+## 5. Physical Repository Model
 
-### 5.1 Mandatory physical structure
-
-Required layout:
+The required disk structure is:
 
 ```txt
 server-data/
@@ -282,482 +87,450 @@ server-data/
     ...source monorepo...
 ```
 
-### 5.2 Critical rule
+Rules:
 
-The source monorepo must **not** live inside FiveM `resources/`.
-
-### 5.3 Absolute source vs runtime separation
-
-- Source code lives in `server-data/trp-framework/`
-- Final runtime output lives in `server-data/resources/[trp-framework]/`
-- Source and runtime must never be mixed
-- Workspace packages must never accidentally become runtime resources
+- `server-data/trp-framework/` is the source repository that goes to Git.
+- `server-data/resources/[trp-framework]/` is the compiled runtime output consumed by FiveM.
+- Source and runtime must remain strictly separated.
+- The build must emit directly into `../resources/[trp-framework]/<resource-name>` from inside the source repo.
+- No manual copying of compiled output should be required after build.
 
 ---
 
-## 6. Logical monorepo structure
+## 6. FiveM Runtime Model
 
-The source repository must have a clear logical structure including at minimum:
+FiveM discovers resources inside `server-data/resources/`.
+A resource is expected to have a valid `fxmanifest.lua` in its root.
 
-- `apps/`
-- `packages/`
-- `resources-src/`
-- `tooling/`
-- `infra/`
-- `tests/`
-- `docs/`
-
-### 6.1 `resources-src/`
-
-Holds source code for actual runtime resources that will be emitted into FiveM `resources/`.
-
-### 6.2 `packages/`
-
-Holds workspace libraries. These are **not** runtime resources.
-
-Examples:
-
-- contracts
-- shared
-- config
-- database
-- observability
-- tooling
-- i18n
-- sdk
-- tsconfig
-- eslint-config
-
-### 6.3 `apps/`
-
-Holds non-FiveM applications. Early phases may leave these minimal.
-
-### 6.4 `tooling/`
-
-Holds build/runtime/tooling scripts.
-
-### 6.5 `infra/`
-
-Holds Docker, Compose, and local infrastructure support.
-
-### 6.6 `tests/`
-
-Holds integration, e2e, and performance-oriented tests.
-
-### 6.7 `docs/`
-
-Holds developer documentation and implementation guidance.
-
----
-
-## 7. Suggested runtime areas inside `resources-src/`
-
-Suggested direction:
-
-```txt
-resources-src/
-  core/
-    kernel/
-    nui-bridge/
-    session/
-    permissions/
-  gameplay/
-    identity/
-    jobs/
-      simple-job/
-  ui/
-    nui-shell/
-  compat/
-    esx/
-    qbcore/
-```
-
-This is a direction, not a rigid template. The architectural intent must remain.
-
----
-
-## 8. Strict FiveM runtime contract
-
-### 8.1 Only real runtime resources in runtime output
+### 6.1 Runtime output rules
 
 Only real runtime resources may be emitted into:
-`../resources/[trp-framework]/`
 
-Workspace libraries, docs, tooling, configs, and internal helpers must never be emitted as standalone resources.
-
-### 8.2 Exactly one `fxmanifest.lua` per resource
-
-Each emitted runtime resource must contain exactly one `fxmanifest.lua` at its root.
-
-### 8.3 No ghost resources
+```txt
+../resources/[trp-framework]/
+```
 
 Do not emit:
 
-- empty runtime resources
-- placeholder-only resources
-- folders that look like resources but are not real resources
+- workspace libraries
+- tooling packages
+- tsconfig packages
+- eslint/prettier packages
+- docs
+- test helpers
+- placeholder folders
+- empty resources
 
-### 8.4 Isolated, restartable runtime resources
+### 6.2 Runtime resources must be independently restartable
 
-Each runtime resource must be independently restartable via FiveM.
+Each emitted runtime resource must be isolated and restartable individually using FiveM commands such as:
 
-### 8.5 Stable, deterministic naming
+- `refresh`
+- `ensure [trp-framework]`
+- `restart trp-identity`
 
-Runtime resources must use stable, documented, deterministic names.
+### 6.3 Runtime source location
 
-Examples:
+All source resources must live under:
 
-- `trp-core-kernel`
-- `trp-core-session`
-- `trp-identity`
-- `trp-job-simple`
-- `trp-compat-esx`
-- `trp-compat-qbcore`
+```txt
+resources-src/
+```
 
-Do not use ambiguous or inconsistent names.
-
----
-
-## 9. Bundling, ESM, dependency strategy, and build rules
-
-### 9.1 Official bundler
-
-Use **esbuild** for runtime bundling.
-
-### 9.2 Expected output per resource
-
-Each resource should typically emit only what it needs, for example:
-
-- `server.js`
-- `client.js`
-- NUI assets where applicable
-- `fxmanifest.lua`
-
-### 9.3 ESM-first source
-
-The monorepo source should be ESM-first.
-
-Rules:
-
-- source packages that should be ESM must declare `"type": "module"`
-- TypeScript and build strategy must support ESM-first development cleanly
-
-### 9.4 FiveM-compatible runtime output
-
-The final runtime bundle must be **compatible with FiveM**, not blindly forced into a format that has not been validated in real runtime usage.
-
-### 9.5 Automatic `fxmanifest.lua` generation
-
-`fxmanifest.lua` must be generated automatically during runtime build.
-
-It must not be left implicit or manually assumed.
-
-### 9.6 Runtime output validation
-
-The build must fail if:
-
-- a resource is emitted without a manifest
-- a manifest references missing files
-- a resource output is empty or invalid
-- runtime structure is broken
-
-### 9.7 Old output cleanup
-
-The build must handle stale runtime output safely to avoid leftover files corrupting emitted resources.
-
-### 9.8 Bundle-per-resource rule
-
-Each runtime resource must be bundled independently.
-
-### 9.9 Shared bundled code is acceptable in moderation
-
-Small, pure, side-effect-free shared code may be bundled into multiple resources.
-
-### 9.10 Avoid god packages
-
-Do not create giant shared packages that pull in large dependency trees.
-
-### 9.11 Tree-shaking friendliness is a requirement
-
-Shared packages should be designed so bundlers can eliminate unused code effectively.
-
-### 9.12 Public runtime APIs for stateful domain logic
-
-Stateful or unique domain logic should live in dedicated runtime resources and be consumed via public runtime APIs/exports.
-
-### 9.13 Do not turn generic utility packages into exported runtime resources
-
-Do not create runtime resources just to expose tiny generic helpers.
-
-### 9.14 Infrastructure ownership rule
-
-PostgreSQL, Redis, and BullMQ must be owned by a very small number of dedicated server-side runtime resources, ideally one core infrastructure owner unless there is a strong reason not to.
-
-Rules:
-
-- gameplay/runtime modules must not initialize their own DB/Redis/BullMQ clients or pools by default
-- `packages/database` and related packages are internal implementation packages, not packages every runtime resource should initialize directly
-- stateful infrastructure access should be centralized and exposed through public runtime APIs/exports where appropriate
-- heavy infrastructure initialization must not be duplicated across many resources
-
-### 9.15 Runtime dependency philosophy
-
-Use the following split:
-
-- bundle small pure shared code where appropriate
-- keep unique/stateful/domain/infrastructure ownership inside dedicated runtime resources
-- use public runtime APIs/exports for cross-resource domain behavior
+Never use the source repo's own `resources/` as if it were the real FiveM runtime directory.
 
 ---
 
-## 10. Runtime manifest (`fxmanifest.lua`) contract
+## 7. Runtime Manifest Contract
 
-### 10.1 Manifest defaults
+The framework must generate `fxmanifest.lua` automatically during runtime build.
 
-All generated runtime manifests should default to:
+### 7.1 General manifest rules
+
+Each emitted runtime resource must:
+
+- contain exactly one `fxmanifest.lua`
+- contain only files referenced by that manifest
+- not reference missing files
+- not be empty
+
+### 7.2 Default manifest values
+
+Unless a resource has a justified reason otherwise, generated runtime manifests must use:
 
 - `fx_version 'cerulean'`
 - `game 'gta5'`
 
-### 10.2 Deprecated entries
+### 7.3 Server JS runtime
 
-Do not use deprecated entries unless there is a very strong reason.
+For server-side JavaScript resources, the generated manifest must use:
 
-In particular:
-
-- do not use `resource_manifest_version`
-- do not use `lua54`
-
-### 10.3 Manifest generation
-
-The manifest generator must determine, per resource, whether to include:
-
-- `server_script`
-- `client_script`
-- `shared_script` only when truly applicable
-- `ui_page`
-- `files`
-- `dependencies`
-- `server_only 'yes'`
 - `node_version '22'`
-- future `provide` entries where compatibility resources need them
 
-### 10.4 Manifest validation
+### 7.4 Server-only resources
 
-Manifest generation and validation must be part of runtime build.
+If a resource has no client runtime code, no NUI, and no client packfile needs, the manifest should include:
 
-### 10.5 `node_version '22'`
+- `server_only 'yes'`
 
-Use `node_version '22'` for server-side JS resources where applicable.
+### 7.5 NUI resources
 
-### 10.6 `server_only 'yes'`
+If a resource includes NUI, the build system must generate correct:
 
-If a resource is truly server-only and should not be downloaded by clients, mark it accordingly.
+- `ui_page`
+- `files { ... }`
 
-### 10.7 NUI rules
+and ensure all assets referenced by the manifest actually exist.
 
-If a resource uses NUI:
+### 7.6 Dependencies
 
-- `ui_page` must be correct
-- required assets must be listed in `files`
-- generated manifest entries must be consistent with emitted assets
+Generated manifests must support `dependencies` when a resource requires another resource to be loaded first.
 
-### 10.8 `dependencies`
+### 7.7 Exports policy
 
-Use `dependencies` where resource startup order or runtime capability ordering matters.
+Prefer exports defined in runtime code, such as:
 
-### 10.9 `provide`
+```ts
+exports('name', fn);
+```
 
-Keep future support in mind for compatibility resources that may need to `provide` legacy framework names.
+Do not rely on manifest `export` / `server_export` declarations unless a very specific compatibility reason exists.
 
-### 10.10 Export declarations
+### 7.8 Future compatibility support
 
-Prefer exports defined in code with runtime APIs over manifest `export` / `server_export` declarations.
+The architecture must preserve the future possibility of using `provide` for compatibility resources such as:
+
+- `trp-compat-esx`
+- `trp-compat-qbcore`
+
+### 7.9 Validation
+
+The runtime build must fail if:
+
+- a resource has no generated manifest
+- a manifest references missing files
+- a resource output is empty
+- runtime output structure is broken
 
 ---
 
-## 11. TypeScript and tsconfig strategy by execution context
+## 8. Technology Decisions (Frozen)
 
-A strict context-aware TS strategy is mandatory.
+These decisions are frozen unless explicitly changed by a later architecture decision.
 
-Required execution contexts:
+### 8.1 Monorepo
+
+- `pnpm workspaces`
+- `Nx`
+
+### 8.2 Language
+
+- `TypeScript`
+
+### 8.3 Validation
+
+- `Zod 4` only
+
+No secondary validation library is allowed as a co-equal framework standard.
+
+### 8.4 Database
+
+- `PostgreSQL`
+- `Drizzle ORM`
+
+### 8.5 Queueing / background processing
+
+- `Redis`
+- `BullMQ`
+
+### 8.6 Runtime bundler
+
+- `esbuild`
+
+### 8.7 NUI stack
+
+- `Vue 3`
+- `Vite`
+- `Pinia`
+- `Tailwind CSS v4`
+- `Base UI`
+
+### 8.8 Config format
+
+- `JSONC`
+- `jsonc-parser` is the primary JSONC parser/manipulation library
+
+### 8.9 Source package strategy
+
+- `ESM-first`
+
+### 8.10 Future admin panel direction
+
+- `Fastify + React`
+
+This is future-facing only and must not be implemented in the early foundation phases unless explicitly requested.
+
+---
+
+## 9. Engineering Principle: Do Not Reinvent the Wheel
+
+TRP Framework must avoid reinventing the wheel.
+
+Rules:
+
+- prefer mature, well-maintained, widely adopted tools and libraries when they solve the problem adequately
+- do not create custom infrastructure packages for problems already solved well by the chosen stack
+- only build custom solutions when there is a clear and justified need
+
+A custom solution is justified only if:
+
+- the problem is highly specific to FiveM/TRP
+- the chosen library/tool cannot support the needed use case
+- performance constraints make the library unsuitable
+- a stable framework-specific public boundary is required
+
+Examples of accepted tools:
+
+- Zod 4
+- Drizzle ORM
+- BullMQ
+- Redis
+- esbuild
+- Nx
+- pnpm workspaces
+- Vue 3 / Vite / Pinia / Tailwind / Base UI
+- Vitest
+- GitHub Actions
+- jsonc-parser
+
+Avoid unnecessary wrappers and abstractions.
+Use thin integration layers only where they clearly improve consistency, reduce coupling, or protect public APIs.
+
+---
+
+## 10. Clean Code, Naming, and Comments Policy
+
+TRP Framework must enforce strict clean code standards.
+
+### 10.1 General code rules
+
+- code must be self-explanatory
+- naming must make intent obvious
+- functions, variables, types, files, and folders must use descriptive names
+- keep units cohesive and focused
+- avoid god files and god modules
+- avoid vague names like `data`, `temp`, `value`, `item`, `helper`, `manager`, `misc`, or `utils` unless context makes them truly correct
+
+### 10.2 Comments policy
+
+Comments must be minimized.
+The code itself should explain what it is doing through naming and structure.
+
+Comments are only acceptable when they explain one of the following:
+
+- a non-obvious FiveM limitation
+- a runtime boundary caveat
+- a subtle performance tradeoff
+- a business-rule reason
+- a non-obvious architectural decision
+
+Do not use comments to explain code that should already be understandable from naming and structure.
+
+---
+
+## 11. AI Agent Working Rule
+
+All implementation guidance, prompts, docs, and workflow references should use the generic term:
+
+- `AI agent`
+
+Do not hardcode architectural process documentation to one vendor-specific implementation agent.
+
+---
+
+## 12. Source Tree Model
+
+The source repo should contain at minimum:
+
+```txt
+apps/
+packages/
+resources-src/
+tooling/
+infra/
+tests/
+docs/
+```
+
+### 12.1 `apps/`
+
+Non-FiveM applications and future apps.
+Examples:
+
+- future admin panel
+- future workers or support tools if they become app-shaped
+
+### 12.2 `packages/`
+
+Workspace libraries only.
+Never runtime FiveM resources.
+
+### 12.3 `resources-src/`
+
+Source runtime resources that will eventually compile into real FiveM resources.
+
+### 12.4 `tooling/`
+
+Internal build scripts, manifest generation, validation, code generation, and helper tooling.
+
+### 12.5 `infra/`
+
+Docker, Compose, infrastructure scaffolding, and environment/dev support.
+
+### 12.6 `tests/`
+
+Integration, performance, end-to-end, and framework-level test support.
+
+### 12.7 `docs/`
+
+Architecture docs, contribution docs, module authoring docs, runtime docs.
+
+---
+
+## 13. TypeScript Context Strategy
+
+The framework must clearly separate TypeScript by runtime context.
+
+Required contexts:
 
 - server runtime
 - client runtime
-- shared/isomorphic
+- shared/isomorphic runtime-safe code
 - NUI/browser
 - tooling/node
 - tests
 
-### 11.1 General rules
+### 13.1 Root ownership
 
-- Strict TypeScript
-- Context-specific tsconfig files
-- Clear inheritance strategy
-- Future support for project references
-- No leaking browser APIs into server/client runtime
-- No leaking Node-only/server-only APIs into shared/NUI
+The TypeScript strategy must have one root source of truth.
+All tsconfig files must be centrally defined and rooted in the repository root.
 
-### 11.2 File selection conventions
+### 13.2 Contexts
 
-The project may use folder boundaries and, where useful, file suffix conventions such as:
+The repo must support explicit tsconfig strategies for at least:
 
-- `.server.ts`
-- `.client.ts`
-- `.shared.ts`
+- base/root
+- tooling/node
+- FiveM server runtime
+- FiveM client runtime
+- shared/isomorphic
+- NUI/browser
+- tests
 
-These conventions must support clarity, not complexity for its own sake.
+### 13.3 Boundary rules
 
-### 11.3 Required tsconfig direction
+- server code must not leak into client/shared/browser contexts
+- browser/NUI code must not leak into runtime server/client contexts
+- Node-only APIs must not leak into shared or client contexts
+- shared code must be truly safe for both intended consumers
 
-The repository should maintain a rooted tsconfig strategy, typically including:
+### 13.4 File conventions
 
-- `tsconfig.base.json`
-- `tsconfig.server.json`
-- `tsconfig.client.json`
-- `tsconfig.shared.json`
-- `tsconfig.nui.json`
-- `tsconfig.tooling.json`
-- root `tsconfig.json`
+The project should use these file suffix conventions:
 
-All of these must remain centrally managed from the root.
+- `*.server.ts`
+- `*.client.ts`
+- `*.shared.ts`
 
-### 11.4 Shared code rules
+### 13.5 Resource-local source layout
 
-Shared code must be safe to consume from both client and server.
+Each runtime resource may contain:
 
-### 11.5 NUI rules
-
-NUI code must remain strictly browser-focused.
-
-### 11.6 Tooling rules
-
-Tooling code may assume Node/tooling environment explicitly, but must not leak that assumption into runtime bundles.
-
-### 11.7 Root config ownership
-
-ESLint, Prettier, and TypeScript strategy must have a single source of truth at the project root.
-
-Projects may extend/reference root strategy, but must not invent conflicting local config islands without strong justification.
-
----
-
-## 12. Type-safety and validation strategy
-
-### 12.1 Official decision
-
-Use **Zod 4 only**.
-
-### 12.2 Required Zod usage areas
-
-Zod must be used at important runtime boundaries, including at minimum:
-
-- framework config
-- module config
-- SDK/public contracts
-- event payloads
-- NUI bridge payloads
-- module manifests where applicable
-- sensitive client/server inputs
-
-### 12.3 Architectural rule
-
-Modules must depend on TRP contracts and Zod-backed schemas as defined by the framework, not invent ad-hoc validation patterns.
-
-### 12.4 Internal rule
-
-Do not revalidate the same data unnecessarily at every layer. Validate at meaningful boundaries.
-
----
-
-## 13. Kernel/core
-
-The kernel must remain small but real.
-
-It should eventually provide:
-
-- runtime bootstrap/init
-- module registration direction
-- metadata/capability direction
-- access to config
-- access to logging/observability
-- access to infrastructure owners where appropriate
-- future-friendly public runtime API direction
-
-Do not turn the kernel into a giant god-resource.
-
----
-
-## 14. Module system and SDK
-
-### 14.1 Module system requirements
-
-The framework must support modules that can declare:
-
-- id
-- version
-- dependencies
-- capabilities
-- config schema
-- lifecycle hooks
-- public services/APIs
-
-### 14.2 SDK
-
-There must be a developer-facing SDK direction for module/plugin authors.
-
-### 14.3 Restrictions
-
-Third-party modules must not depend on framework internals.
-
-### 14.4 Safe upgrades
-
-Public APIs must be designed so framework consumers can update without rewriting their custom scripts unless they depended on internals.
-
----
-
-## 15. Public API vs internal API policy
-
-### 15.1 Public
-
-Public surface should be limited and intentional.
-
-Candidates include:
-
-- `packages/sdk`
-- `packages/contracts`
-- selected public runtime APIs/exports
-- documented config shape/contracts where relevant
-
-### 15.2 Internal
-
-Everything else should be treated as internal unless explicitly documented as public.
-
-### 15.3 Third-party rule
-
-Third-party code must only depend on documented public surfaces.
-
-### 15.4 Evolution rule
-
-Breaking changes to public APIs must be handled consciously and documented.
-
----
-
-## 16. Centralized configuration
-
-The framework configuration model is JSONC-based.
+- `client/`
+- `server/`
+- optional `shared/`
 
 Rules:
 
-- no `.env` as the primary framework configuration model
-- one global framework config
-- module-specific config files where needed
-- parse with `jsonc-parser`
-- validate with Zod 4
-- support a clear load/merge strategy
-- keep config easy to edit, version, and document
+- `client/` contains `*.client.ts`
+- `server/` contains `*.server.ts`
+- `shared/` contains `*.shared.ts`
 
-Suggested structure direction:
+`shared/` is only for small runtime code shared by the client and server of that same resource.
+
+### 13.6 Shared folder policy
+
+- direct imports from `shared/` into `client/` and `server/` are allowed
+- small duplication caused by bundling `shared/` code into both runtime bundles is acceptable
+- do not introduce a dedicated `shared_script` optimization strategy at this stage
+- do not overengineer resource-local shared runtime code yet
+
+If code needs to be reused across multiple resources, it must live in `packages/*`, not in a resource-local `shared/` folder.
+
+---
+
+## 14. ESM Strategy and Runtime Compatibility
+
+The source repository must be ESM-first.
+
+Rules:
+
+- source/workspace packages participating in bundling must be authored in an ESM-friendly way
+- internal packages must avoid CommonJS unless clearly justified
+- runtime output must be compatible with FiveM, even if the source repo is ESM-first
+
+Important:
+
+- do not force runtime artifacts to be “ESM for its own sake” if that conflicts with proven FiveM runtime compatibility
+- source is ESM-first
+- runtime output must be FiveM-compatible and validated in practice
+
+---
+
+## 15. Single Source of Truth for Root Configs
+
+TRP Framework must maintain one root source of truth for:
+
+- ESLint
+- Prettier
+- TypeScript strategy
+
+Rules:
+
+- root configuration files are authoritative
+- packages and resources must extend/reference the root strategy
+- avoid duplicated local configs that conflict with the root model
+- keep context-specific tsconfig files, but root them in the centralized strategy
+- modules must not invent ad-hoc local linting/formatting/tsconfig setups
+
+---
+
+## 16. Configuration Model
+
+### 16.1 Primary config format
+
+TRP Framework uses **JSONC** as the primary configuration format.
+
+### 16.2 Primary parser
+
+The primary JSONC parser/manipulation library is:
+
+- `jsonc-parser`
+
+### 16.3 Validation
+
+All parsed configuration must be validated with:
+
+- `Zod 4`
+
+### 16.4 Configuration sources
+
+The framework must support:
+
+- one global framework config
+- optional module-specific config files
+
+Suggested model:
 
 ```txt
 config/
@@ -767,83 +540,340 @@ config/
     simple-job.config.jsonc
 ```
 
-Environment variables may exist for narrow infrastructure overrides if justified, but JSONC is the primary source of truth for framework configuration.
+### 16.5 Rules
+
+- `.env` must not be the primary framework configuration model
+- global config is the primary source of truth
+- module config is additive and scoped
+- configuration loading/merging must be predictable and documented
+- environment variables may exist only as limited infrastructure overrides when clearly justified
 
 ---
 
-## 17. Persistence, queues, and data integrity principles
+## 17. Shared Types and Contracts Strategy
 
-### 17.1 Technical base
+The primary source of shared framework types and contracts must be:
 
-- PostgreSQL
-- Drizzle ORM
+- `packages/contracts`
+
+Rules:
+
+- repeated types across runtime resources must be moved into `packages/contracts`
+- shared framework contracts, DTOs, payloads, public cross-module types, and validation boundaries must live in `packages/contracts`
+- module-local internal types may remain inside the module if they are not reused elsewhere
+- avoid duplicating shared type definitions across resources and packages
+
+`packages/contracts` must not become a broad god-package.
+It must be structured by domain and subpath exports, for example:
+
+- `@trp/contracts/core`
+- `@trp/contracts/identity`
+- `@trp/contracts/simple-job`
+
+Do not create one giant barrel reexporting everything.
+Use granular exports and imports.
+
+---
+
+## 18. Zod 4 Usage and Strict Tree-Shaking Rules
+
+Zod 4 is the only validation library used by TRP Framework.
+
+However, Zod runtime code must not be pulled unnecessarily into every runtime resource.
+
+Rules:
+
+- only import Zod schemas in places that truly require runtime validation
+- when only types are needed, use `import type`
+- schemas and types should be split where appropriate so runtime consumers do not pull Zod unnecessarily
+- `packages/contracts` must be designed for tree-shaking friendliness
+- avoid broad barrel exports that force unnecessary runtime imports
+
+Required practices:
+
+- source packages participating in bundling must remain ESM-first
+- CommonJS must be avoided in internal source packages unless clearly justified
+- use `sideEffects: false` where correct
+- use granular imports and subpath exports
+- maximize tree-shaking while keeping the system functional and maintainable
+
+Build requirements:
+
+- runtime builds must enable tree-shaking
+- bundle analysis must be possible through esbuild metafile or equivalent
+- transitive dependency growth is an architectural concern and must be monitored
+
+Do not accept passive growth where every runtime resource ends up carrying unnecessary validation runtime.
+
+---
+
+## 19. Runtime Infrastructure Ownership
+
+TRP Framework must avoid duplicating heavy infrastructure initialization across runtime resources.
+
+Rules:
+
+- `packages/database` is an internal implementation package, not a package that every runtime resource should initialize directly
+- `packages/database` may expose:
+  - Drizzle schema
+  - query helpers
+  - repository/factory primitives
+  - DB-related type-safe utilities
+- `packages/database` must not encourage every runtime resource to create its own DB client or pool
+
+The primary runtime infrastructure owner must be:
+
+- `trp-core-kernel`
+
+`trp-core-kernel` is responsible for owning and initializing:
+
+- PostgreSQL / Drizzle
 - Redis
 - BullMQ
+- other heavy shared infrastructure unless a later architectural decision explicitly separates it
 
-### 17.2 Concurrency and integrity philosophy
+Default rule:
 
-The architecture should remain compatible with disciplined data-integrity patterns such as:
+- gameplay/runtime resources must not initialize their own DB/Redis/BullMQ clients or pools
+- gameplay/runtime resources should access stateful infrastructure capabilities through:
+  - public runtime APIs
+  - code-defined exports
+  - kernel-owned services/capabilities
 
-- transactional correctness
-- idempotency for sensitive operations
-- append-only or auditable strategies where needed
-- contention-aware design
-- central ownership of infrastructure initialization
+This rule exists to avoid:
 
-### 17.3 Rule
-
-Gameplay resources should not independently initialize heavy infrastructure unless explicitly justified by architecture.
-
----
-
-## 18. Performance and scaling principles
-
-The framework should be designed to remain compatible with high concurrency and OneSync Infinity, but without overclaiming.
-
-Priorities:
-
-- avoid O(n²) patterns
-- avoid excessive event traffic
-- avoid unnecessary repeated validation
-- keep bundles clean and focused
-- centralize heavy infrastructure ownership
-- keep stateful domain logic in dedicated runtime resources
-- profile before making deep optimizations
-
-Zod 4 is the chosen validation library. Performance must be achieved through sound architecture, careful boundaries, and profiling, not by introducing multiple validation systems.
+- duplicated connections
+- duplicated pools
+- unnecessary memory use
+- inconsistent ownership of infrastructure
+- runtime fragmentation
 
 ---
 
-## 19. Internationalization (i18n)
+## 20. Database / Queue / Heavy Dependency Usage Rules
 
-### 19.1 Model
+### 20.1 Packages vs owners
 
-The framework must support multiple languages, with one active server-selected language at a time.
+- `packages/database` is for schema, helpers, types, and DB implementation support
+- `packages/database` is not the place where every runtime resource gets a live `db` singleton by default
 
-### 19.2 Operational rule
+### 20.2 Runtime behavior
 
-No per-player live language switching is required in v1.
+Runtime resources should not do this by default:
 
-### 19.3 Requirements
+```ts
+import { db } from '@trp/database';
+```
 
-- module-namespaced translation keys
-- fallback locale behavior
-- support across server, client, modules, compatibility layers, and NUI
-- easy addition of new languages
+if that implies direct independent runtime initialization in many resources.
 
-### 19.4 Suggested structure
+### 20.3 Kernel-owned access
 
-A shared i18n package/foundation should exist, and modules should later be able to add their own locale assets.
-
-### 19.5 Goal
-
-Localization must be easy to extend, maintain, and consume.
+Heavy runtime services must be owned by `trp-core-kernel` and accessed through public runtime APIs or kernel-owned service access patterns.
 
 ---
 
-## 20. NUI and visual layer
+## 21. Shared Bundled Code vs Runtime Public APIs
 
-### 20.1 Frozen stack
+TRP Framework must clearly distinguish between:
+
+- small bundled shared code
+- unique stateful/domain logic exposed through runtime APIs
+
+Rules:
+
+- small, pure, side-effect-free shared code may be bundled into multiple runtime resources
+- unique, stateful, source-of-truth domain logic must live in a dedicated runtime resource
+- other runtime resources must consume that domain logic through public runtime APIs/exports instead of bundling/copying it
+
+Use bundled shared code for:
+
+- small helpers
+- constants
+- contracts
+- schemas where runtime validation is actually needed
+- pure utility functions
+- i18n helpers
+- small resource-local shared runtime code
+
+Use runtime public APIs/exports for:
+
+- domain capabilities
+- stateful services
+- source-of-truth logic
+- infrastructure ownership
+- identity/account/state access
+- other unique runtime services
+
+Do not:
+
+- create utility-only runtime resources just to avoid tiny code duplication
+- create giant god packages
+- duplicate stateful domain logic across runtime resources
+
+---
+
+## 22. Third-Party Dependency Bundling Policy
+
+Runtime resources must be self-contained and reliable in FiveM.
+
+Rules:
+
+- third-party runtime dependencies used by a runtime resource should be bundled into the final runtime artifact by default
+- Node built-ins may remain external for server-side runtime resources where appropriate
+- client runtime resources must not rely on runtime resolution of external npm packages
+- workspace libraries may be bundled into runtime resources as needed
+
+This means:
+
+- libraries such as `zod` and `jsonc-parser` should normally be bundled into final runtime resources if those resources actually use them
+- do not rely on resource-local `node_modules` distribution as the primary runtime strategy
+- do not externalize third-party dependencies casually in runtime builds
+
+This policy exists to keep runtime output deterministic, portable, and deployment-friendly.
+
+---
+
+## 23. Monorepo Package Boundaries
+
+The repository should contain at minimum these shared package categories:
+
+- `packages/contracts`
+- `packages/shared`
+- `packages/config`
+- `packages/database`
+- `packages/observability`
+- `packages/tooling`
+- `packages/i18n`
+- `packages/sdk`
+- `packages/tsconfig`
+- `packages/eslint-config`
+
+Rules:
+
+- these are workspace libraries only
+- they must not become runtime FiveM resources
+- each package must have a focused responsibility
+- avoid giant “shared” packages that pull too much transitively
+
+---
+
+## 24. Kernel / Core Direction
+
+The framework must have a small but real kernel/core.
+
+The kernel must eventually support:
+
+- runtime bootstrap/init
+- module registration direction
+- module/runtime metadata
+- dependency declaration direction
+- capability declaration direction
+- config access
+- logging access
+- runtime service registration/access
+- future-friendly lifecycle hooks
+- public runtime API/export direction
+
+Do not overbuild the kernel early.
+It should be small, real, and extensible.
+
+---
+
+## 25. Module and Plugin Architecture
+
+The framework must be modular.
+
+### 25.1 Runtime modules
+
+Examples:
+
+- identity
+- jobs
+- compatibility resources
+- future domain systems
+
+### 25.2 Third-party extensibility
+
+Third-party authors must eventually be able to create their own TRP-compatible modules/plugins without modifying kernel internals.
+
+### 25.3 SDK direction
+
+A developer-facing SDK package should eventually exist to make module authoring easier, but must not become a fake abstraction detached from runtime reality.
+
+---
+
+## 26. Runtime Resource Build Strategy
+
+### 26.1 Bundling
+
+Each runtime resource must be bundled independently using:
+
+- `esbuild`
+
+### 26.2 Output shape
+
+Each runtime resource should emit artifacts such as:
+
+- `server.js`
+- `client.js`
+
+as applicable.
+
+### 26.3 Internal modularization
+
+Source code inside a resource may be modular and split into many internal files and folders.
+The builder is responsible for collapsing those entry trees into final bundled runtime artifacts.
+
+Do not require one giant source file per context.
+
+### 26.4 No ghost resources
+
+Do not emit placeholder runtime resources.
+Do not emit empty runtime resources.
+Do not emit workspace packages as resources.
+
+---
+
+## 27. Runtime Build Validation
+
+The runtime build must validate:
+
+- emitted resources are real and non-empty
+- exactly one manifest exists per resource
+- manifest references real files
+- build output structure matches runtime expectations
+- bundling strategy does not accidentally leave invalid runtime dependencies unresolved
+
+Bundle analysis must be possible.
+Runtime output correctness is an architectural requirement.
+
+---
+
+## 28. i18n / Localization
+
+TRP Framework must be internationalization-ready from the first version.
+
+Requirements:
+
+- support multiple languages across core, modules, plugins, compatibility layers, and NUI
+- the server selects one active locale at startup
+- per-player runtime language switching is not required in v1
+- each module/plugin should be able to contribute its own locale assets later
+- fallback locale behavior must exist
+- translation keys should be namespaced by module
+
+Initial direction:
+
+- `packages/i18n` as a shared foundation
+- one active server locale model
+- module-local locale assets supported later
+
+---
+
+## 29. NUI Architecture
+
+The NUI direction is frozen as:
 
 - Vue 3
 - Vite
@@ -851,70 +881,38 @@ Localization must be easy to extend, maintain, and consume.
 - Tailwind CSS v4
 - Base UI
 
-### 20.2 `nui-shell`
+Rules:
 
-The framework should have a reusable `nui-shell` instead of fragmented ad-hoc UIs.
+- keep NUI separate from FiveM runtime contexts
+- use a typed bridge contract
+- NUI assets must be emitted into the correct runtime resource later
+- the NUI architecture should remain reusable and modular
 
-### 20.3 Typed bridge
-
-The bridge between runtime and NUI must be typed and validated with Zod where appropriate.
-
-### 20.4 NUI build requirements
-
-NUI assets must be emitted into the correct runtime resource output and correctly reflected in the generated manifest.
-
-### 20.5 v1 scope
-
-Advanced NUI is not required in early phases, but the architecture must be ready for it.
+Do not build large NUI systems before the framework base is ready.
 
 ---
 
-## 21. ESX/QBCore compatibility
+## 30. ESX / QBCore Compatibility Direction
 
-### 21.1 Goal
+TRP Framework must eventually support compatibility layers for legacy Lua ecosystems.
 
-Provide a realistic compatibility subsystem that can help legacy Lua resources interoperate with TRP Framework.
+This compatibility must be explicit and modular.
+It must not become scattered hacks inside the kernel.
 
-### 21.2 Mandatory pattern
+Future compatibility resources may include:
 
-Compatibility logic must remain isolated from kernel internals.
+- `trp-compat-esx`
+- `trp-compat-qbcore`
 
-### 21.3 Suggested modules
+Potential future use of `provide` in manifests must remain possible.
 
-Suggested direction:
-
-- `resources-src/compat/esx/`
-- `resources-src/compat/qbcore/`
-
-### 21.4 Requirements
-
-The compatibility layer should eventually support a realistic subset of:
-
-- player lookup/identity access
-- jobs
-- money/account direction
-- callback/export style compatibility
-- common client/server interaction expectations
-
-### 21.5 Realistic initial scope
-
-Do not promise full compatibility with every legacy community script.
-
-### 21.6 Language
-
-Compatibility resources may later need `provide` support when appropriate.
+This compatibility is future-facing and should be implemented in dedicated phases.
 
 ---
 
-## 22. Development workflow and watch mode
+## 31. CI / Validation / Health Requirements
 
-### 22.1 Goal
-
-The framework must support fast, incremental development.
-
-### 22.2 Expected root commands
-
-Root command surface should include at minimum:
+The repository must support validation commands such as:
 
 - `lint`
 - `format`
@@ -926,202 +924,94 @@ Root command surface should include at minimum:
 - `dev:watch`
 - `clean`
 
-### 22.3 Incremental rebuild
-
-Changing one module/resource should rebuild only what is necessary.
-
-### 22.4 Real runtime flow
-
-Typical runtime flow should support:
-
-- edit source in `server-data/trp-framework/`
-- rebuild incrementally
-- emit to `../resources/[trp-framework]/...`
-- `refresh`
-- `restart <resource>` in FiveM where appropriate
-
-### 22.5 NUI in development
-
-NUI should support a clean dev workflow later without corrupting runtime output architecture.
+Root-level tasks must exist.
+Work already implemented must continue to lint, typecheck, and build correctly.
 
 ---
 
-## 23. Testing, quality, and validation
+## 32. Documentation Requirements
 
-The framework should prepare for:
+The repository must document at least:
 
-- unit tests
-- integration tests
-- runtime smoke tests
-- NUI/e2e foundations later
-- runtime output validation
-- manifest validation
-
-Quality gates should include, where applicable:
-
-- lint
-- typecheck
-- build
-- runtime build validation
+- source vs runtime separation
+- runtime output model
+- config model
+- package boundaries
+- resource structure
+- how to add a runtime resource/module
+- how contracts and shared types are organized
+- how the kernel owns infrastructure
+- how cross-resource APIs should be used
+- how AI agents should work against the spec
 
 ---
 
-## 24. Docker, Compose, and local environment
+## 33. Prompt / Implementation Agent Rules
 
-The repository should include local infrastructure support for:
+Any AI agent working on this repository must:
 
-- PostgreSQL
-- Redis
-- related local dependencies when needed
-
-Do not over-center the architecture around running FiveM itself in Docker.
-
----
-
-## 25. CI/CD and releases
-
-### 25.1 Minimum CI
-
-CI should include at minimum:
-
-- install/cache
-- lint
-- typecheck
-- test
-- build
-- build:runtime
-- artifact publication where appropriate
-
-### 25.2 Versioning
-
-Use Changesets for versioning/changelog.
-
-### 25.3 Goal
-
-Support clean releases for the framework source and runtime artifacts.
+1. read `ARCH_SPEC.md` before making changes
+2. preserve frozen architecture decisions
+3. avoid unnecessary rewrites
+4. avoid overengineering
+5. not recreate the repo from scratch unless explicitly instructed
+6. keep the repository healthy after each phase
+7. run validation commands before finishing a phase
+8. explain assumptions and technical risks
 
 ---
 
-## 26. Safe upgrades for framework consumers
+## 34. Phase Model
 
-The architecture must make it practical for framework consumers to update TRP Framework without rewriting all custom modules.
+The framework should be built in phases.
 
-This requires:
+Expected high-level progression:
 
-- stable public surfaces
-- clear public vs internal boundaries
-- additive changes where possible
-- conscious handling of breaking changes
-- documentation of migration paths when needed
+1. monorepo foundation
+2. shared package foundation
+3. runtime/kernel/build pipeline foundation
+4. first gameplay modules and inter-resource communication
+5. NUI foundation
+6. compatibility layer foundation
+7. CI/CD, Docker, release hardening
+8. future admin panel foundation
 
----
-
-## 27. Early non-goals
-
-Do not treat the following as early mandatory implementation goals:
-
-- full gameplay economy
-- full inventory
-- full advanced policing/forensics systems
-- advanced systemic world simulation
-- full admin panel
-- total legacy compatibility
-
-These may exist in separate game design/system design documents.
+The repository should remain runnable and aligned after each phase.
 
 ---
 
-## 28. Implementation phases
+## 35. Acceptance Criteria
 
-### Phase 1 — Monorepo foundation
+The architecture is only acceptable if all of these are true over time:
 
-Monorepo structure, root configs, root scripts, docs, TS context strategy.
-
-### Phase 2 — Shared libraries
-
-Shared packages, config foundation, i18n foundation, database/queue/observability foundations, SDK scaffolding.
-
-### Phase 2.5 — Alignment/refactor pass if needed
-
-Correct drift introduced by earlier phases.
-
-### Phase 3 — Kernel and real runtime build
-
-Kernel foundation, runtime resource source structure, esbuild pipeline, generated manifests, runtime output validation.
-
-### Phase 4 — First domain modules
-
-Identity, first small job module, first clean cross-resource communication example.
-
-### Phase 5 — NUI
-
-NUI shell, typed bridge, first runtime-integrated UI example.
-
-### Phase 6 — Compatibility layer
-
-ESX/QBCore bridge direction.
-
-### Phase 7 — Hardening
-
-Docker/Compose, CI/CD, release hardening, upgrade docs, overall cleanup.
-
-### Phase 8 — Future admin panel
-
-Fastify + React direction, only when explicitly requested.
+- source repo remains separate from runtime output
+- runtime output goes to `../resources/[trp-framework]/`
+- no ghost resources are emitted
+- each runtime resource has exactly one valid manifest
+- manifests reference only real files
+- runtime resources are independently restartable
+- runtime build is deterministic and validated
+- infrastructure ownership is centralized correctly
+- heavy infra is not initialized independently by many resources
+- contracts/types are shared through `packages/contracts`
+- tree-shaking is treated as an architectural concern
+- Zod runtime usage is controlled and not pulled everywhere unnecessarily
+- runtime resources can use `client/`, `server/`, and optional small `shared/`
+- root config files remain the single source of truth for linting/formatting/tsconfig
+- config is JSONC-based and validated with Zod after parsing via `jsonc-parser`
+- code remains clean, explicit, and minimally commented
+- the architecture remains AI-agent-agnostic
+- the repo remains compatible with future module/plugin authorship
 
 ---
 
-## 29. Mandatory working rules for the AI agent
+## 36. Final Working Rule
 
-The AI agent must:
+When in doubt, choose:
 
-- read this file before each major phase
-- preserve frozen decisions unless explicitly instructed otherwise
-- keep the repository healthy after each phase
-- prefer minimal real implementations over empty abstractions
-- avoid inventing new stack decisions
-- avoid unnecessary rewrites
-- keep docs aligned with implementation
-- keep code clean and naming explicit
-- minimize comments
-- maintain correct runtime/output separation
-
----
-
-## 30. Final acceptance criteria
-
-The project is acceptable only if all of the following are true by the appropriate phase progression:
-
-- coherent pnpm + Nx monorepo
-- strict TypeScript strategy by runtime context
-- source/runtime separation respected
-- runtime resources emitted under `../resources/[trp-framework]/`
-- no ghost resources
-- exactly one valid `fxmanifest.lua` per emitted resource
-- generated manifests reference real files
-- Zod 4 is the only validation system
-- PostgreSQL + Drizzle foundation exists
-- Redis + BullMQ foundation exists
-- JSONC configuration exists as primary framework config
-- `jsonc-parser` is used for JSONC parsing/manipulation
-- ESLint, Prettier, and tsconfig strategy are rooted centrally
-- kernel/core foundation exists
-- first domain modules exist
-- cross-resource communication pattern exists
-- NUI foundation exists later in the correct phase
-- compatibility direction exists later in the correct phase
-- Docker/Compose support exists
-- CI/CD support exists
-- upgrade strategy is documented
-- public vs internal API boundaries remain clear
-- code quality remains aligned with clean-code and minimal-comment rules
-
----
-
-## 31. Related documents
-
-This file is the primary operational specification.
-
-Higher-level gameplay/system design that should not automatically be implemented in early architecture phases should live in separate documents such as:
-
-- `GAME_DESIGN_SPEC.md`
+- clarity over cleverness
+- maintainability over novelty
+- explicit boundaries over magic
+- mature tooling over custom reinvention
+- small real implementations over giant speculative abstractions
+- performance-aware pragmatism over premature overengineering

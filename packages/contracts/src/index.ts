@@ -1,2 +1,2 @@
-export * from './base';
-export * from './identity';
+export * from './base/index';
+export * from './identity/index';

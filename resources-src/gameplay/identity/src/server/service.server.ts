@@ -1,19 +1,52 @@
+import { CharacterCreateSchema } from '@trp/contracts/identity/schemas';
+import { IdentityEvents } from '@trp/contracts/identity/events';
+import type { Character, CharacterCreate } from '@trp/contracts/identity/types';
 
-import {
-  CharacterCreateSchema,
-  IdentityEvents,
-  type Character,
-  type CharacterCreate,
-} from '@trp/contracts';
-import { db, schema, eq } from '@trp/database';
+type CharacterRow = {
+  id: number;
+  licenseId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  createdAt: Date;
+};
+
+type IdentityInfrastructureServices = {
+  database: {
+    db: {
+      select: () => {
+        from: (table: unknown) => {
+          where: (predicate: unknown) => Promise<CharacterRow[]>;
+        };
+      };
+      insert: (table: unknown) => {
+        values: (values: Omit<CharacterRow, 'id' | 'createdAt'>) => {
+          returning: () => Promise<CharacterRow[]>;
+        };
+      };
+    };
+    schema: {
+      characters: {
+        licenseId: unknown;
+      };
+    };
+    eq: (left: unknown, right: string) => unknown;
+  };
+};
 
 export class IdentityService {
-  /* Retrieve all characters belonging to a license. */
+  public constructor(private readonly infrastructure: IdentityInfrastructureServices) {}
+
   async getCharacters(licenseId: string): Promise<Character[]> {
-    const rows = await db
+    const rows = await this.infrastructure.database.db
       .select()
-      .from(schema.characters)
-      .where(eq(schema.characters.licenseId, licenseId));
+      .from(this.infrastructure.database.schema.characters)
+      .where(
+        this.infrastructure.database.eq(
+          this.infrastructure.database.schema.characters.licenseId,
+          licenseId,
+        ),
+      );
 
     return rows.map((r) => ({
       id: r.id,
@@ -25,13 +58,11 @@ export class IdentityService {
     }));
   }
 
-  /* Create a new character. Validates input with Zod before inserting. */
   async createCharacter(data: CharacterCreate): Promise<Character> {
-    // Validate at the boundary
     const parsed = CharacterCreateSchema.parse(data);
 
-    const [inserted] = await db
-      .insert(schema.characters)
+    const [inserted] = await this.infrastructure.database.db
+      .insert(this.infrastructure.database.schema.characters)
       .values({
         licenseId: parsed.licenseId,
         firstName: parsed.firstName,

@@ -28,4 +28,10 @@ All JavaScript running on the server requires `node_version '22'` to be automati
 
 ## Game Design Spec
 
-The `GAME_DESIGN_SPEC_EN.md` contains future gameplay/system design context and is not wholly implemented in the foundational phase. The architecture simply remains extensible enough to sustain its vision (e.g., multicharacter identity, systemic evidence, territorial control).
+The `GAME_DESIGN_SPEC.md` file contains future gameplay/system design context and is not wholly implemented in the foundational phase. The architecture remains extensible enough to sustain its vision (for example multicharacter identity, systemic evidence, and territorial control).
+
+Kernel ownership rule:
+
+- `@trp/core-kernel` owns DB/Redis/BullMQ initialization.
+- Gameplay resources should not initialize those infrastructure clients directly.
+- Stateful cross-resource capabilities are consumed through runtime exports/public APIs.

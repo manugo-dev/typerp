@@ -1,13 +1,7 @@
-/**
- * Core Kernel - Client Runtime
- * Establishes the client-side module registry and core framework initialization.
- */
+import { KERNEL_RESOURCE_NAME } from '../shared/kernel.shared';
 
-import { KERNEL_RESOURCE_NAME } from '../shared/index.js';
+console.log(`[${KERNEL_RESOURCE_NAME}] Initializing client runtime...`);
 
-console.log(`[${KERNEL_RESOURCE_NAME}] Initializing TRP Framework Kernel (Client)...`);
-
-// A mirrored minimal registry for the client.
 class ClientServiceRegistry {
   private services = new Map<string, unknown>();
 

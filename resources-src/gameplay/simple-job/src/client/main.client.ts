@@ -1,19 +1,6 @@
-/**
- * Simple Job — Client Runtime
- *
- * Minimal client-side job interaction.
- * Handles job assignment display and delivery triggers.
- *
- * Context: CLIENT only — FiveM client natives, no Node.js APIs.
- */
-
-import { JobEvents, type JobAssignment } from '../shared/index.js';
+import { JobEvents, type JobAssignment } from '../shared/job.shared';
 
 let currentJob: JobAssignment | null = null;
-
-// ---------------------------------------------------------------------------
-// Event Handlers
-// ---------------------------------------------------------------------------
 
 onNet(JobEvents.JOB_ASSIGNED, (assignment: JobAssignment) => {
   currentJob = assignment;
@@ -65,7 +52,9 @@ RegisterCommand(
       return;
     }
     console.log(`[Job] Active: ${currentJob.description}`);
-    console.log(`[Job] ${currentJob.pickupLabel} → ${currentJob.deliveryLabel} ($${currentJob.reward})`);
+    console.log(
+      `[Job] ${currentJob.pickupLabel} → ${currentJob.deliveryLabel} ($${currentJob.reward})`,
+    );
   },
   false,
 );
