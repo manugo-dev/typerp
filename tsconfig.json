@@ -5,8 +5,7 @@
 		{ "path": "./tsconfig.server.json" },
 		{ "path": "./tsconfig.nui.json" },
 		{ "path": "./tsconfig.packages.json" },
-		{ "path": "./tsconfig.test.json" },
-		{ "path": "./tsconfig.tooling.json" }
+		{ "path": "./tsconfig.test.json" }
 	],
 	"compilerOptions": {
 		"composite": true
