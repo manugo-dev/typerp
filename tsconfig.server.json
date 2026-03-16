@@ -1,7 +1,14 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "types": ["@citizenfx/server", "node"]
-  },
-  "include": ["**/server/**/*.ts", "**/shared/**/*.ts", "**/*.server.ts", "**/*.shared.ts"]
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["@citizenfx/server", "node"],
+		"lib": ["es2022"]
+	},
+	"include": [
+		"**/server/**/*.ts",
+		"**/shared/**/*.ts",
+		"**/*.server.ts",
+		"**/*.shared.ts",
+		"**/*.server.d.ts"
+	]
 }

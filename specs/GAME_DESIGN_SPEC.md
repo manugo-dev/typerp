@@ -3,7 +3,7 @@
 ## TRP Framework — High-Level Game Design and Systems Specification
 
 Status: complementary document  
-Project: `trp-framework`
+Project: `typerp`
 
 ---
 

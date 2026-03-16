@@ -1,90 +1,58 @@
-import { CharacterCreateSchema } from '@trp/contracts/identity/schemas';
-import { IdentityEvents } from '@trp/contracts/identity/events';
-import type { Character, CharacterCreate } from '@trp/contracts/identity/types';
-
-type CharacterRow = {
-  id: number;
-  licenseId: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  createdAt: Date;
-};
-
-type IdentityInfrastructureServices = {
-  database: {
-    db: {
-      select: () => {
-        from: (table: unknown) => {
-          where: (predicate: unknown) => Promise<CharacterRow[]>;
-        };
-      };
-      insert: (table: unknown) => {
-        values: (values: Omit<CharacterRow, 'id' | 'createdAt'>) => {
-          returning: () => Promise<CharacterRow[]>;
-        };
-      };
-    };
-    schema: {
-      characters: {
-        licenseId: unknown;
-      };
-    };
-    eq: (left: unknown, right: string) => unknown;
-  };
-};
+import { IdentityEvents } from "@typerp/contracts/identity/events";
+import { CharacterCreateSchema } from "@typerp/contracts/identity/schemas";
+import type { Character, CharacterCreate } from "@typerp/contracts/identity/types";
 
 export class IdentityService {
-  public constructor(private readonly infrastructure: IdentityInfrastructureServices) {}
+	public constructor() {}
 
-  async getCharacters(licenseId: string): Promise<Character[]> {
-    const rows = await this.infrastructure.database.db
-      .select()
-      .from(this.infrastructure.database.schema.characters)
-      .where(
-        this.infrastructure.database.eq(
-          this.infrastructure.database.schema.characters.licenseId,
-          licenseId,
-        ),
-      );
+	async getCharacters(licenseId: string): Promise<Character[]> {
+		const rows = await this.infrastructure.database.db
+			.select()
+			.from(this.infrastructure.database.schema.characters)
+			.where(
+				this.infrastructure.database.eq(
+					this.infrastructure.database.schema.characters.licenseId,
+					licenseId,
+				),
+			);
 
-    return rows.map((r) => ({
-      id: r.id,
-      licenseId: r.licenseId,
-      firstName: r.firstName,
-      lastName: r.lastName,
-      dateOfBirth: r.dateOfBirth,
-      createdAt: r.createdAt,
-    }));
-  }
+		return rows.map((row) => ({
+			createdAt: row.createdAt,
+			dateOfBirth: row.dateOfBirth,
+			firstName: row.firstName,
+			id: row.id,
+			lastName: row.lastName,
+			licenseId: row.licenseId,
+		}));
+	}
 
-  async createCharacter(data: CharacterCreate): Promise<Character> {
-    const parsed = CharacterCreateSchema.parse(data);
+	async createCharacter(data: CharacterCreate): Promise<Character> {
+		const parsed = CharacterCreateSchema.parse(data);
 
-    const [inserted] = await this.infrastructure.database.db
-      .insert(this.infrastructure.database.schema.characters)
-      .values({
-        licenseId: parsed.licenseId,
-        firstName: parsed.firstName,
-        lastName: parsed.lastName,
-        dateOfBirth: parsed.dateOfBirth,
-      })
-      .returning();
+		const [inserted] = await this.infrastructure.database.db
+			.insert(this.infrastructure.database.schema.characters)
+			.values({
+				dateOfBirth: parsed.dateOfBirth,
+				firstName: parsed.firstName,
+				lastName: parsed.lastName,
+				licenseId: parsed.licenseId,
+			})
+			.returning();
 
-    if (!inserted) {
-      throw new Error('[Identity] Failed to insert character');
-    }
+		if (!inserted) {
+			throw new Error("[Identity] Failed to insert character");
+		}
 
-    const character: Character = {
-      id: inserted.id,
-      licenseId: inserted.licenseId,
-      firstName: inserted.firstName,
-      lastName: inserted.lastName,
-      dateOfBirth: inserted.dateOfBirth,
-      createdAt: inserted.createdAt,
-    };
+		const character: Character = {
+			createdAt: inserted.createdAt,
+			dateOfBirth: inserted.dateOfBirth,
+			firstName: inserted.firstName,
+			id: inserted.id,
+			lastName: inserted.lastName,
+			licenseId: inserted.licenseId,
+		};
 
-    emit(IdentityEvents.CHARACTER_CREATED, character);
-    return character;
-  }
+		emit(IdentityEvents.CHARACTER_CREATED, character);
+		return character;
+	}
 }

@@ -1,16 +1,12 @@
-import { defineConfig } from 'drizzle-kit';
-import { getConfig } from '@trp/config';
-
-// Load config manually for CLI tools out-of-bounds
-const config = getConfig();
+import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
-  schema: './src/schema/index.ts',
-  out: './drizzle',
-  dialect: 'postgresql',
-  dbCredentials: {
-    url: config.DATABASE_URL ?? 'postgresql://postgres:postgres@127.0.0.1:5432/trp_framework',
-  },
-  verbose: true,
-  strict: true,
+	schema: "./src/schema/index.ts",
+	out: "./drizzle",
+	dialect: "postgresql",
+	dbCredentials: {
+		url: "postgresql://postgres:postgres@127.0.0.1:5432/typerp_framework",
+	},
+	verbose: true,
+	strict: true,
 });

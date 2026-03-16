@@ -11,8 +11,8 @@ export interface JobAssignment {
 }
 
 export const JobEvents = {
-  JOB_ASSIGNED: 'trp:job:assigned',
-  JOB_REQUEST: 'trp:job:request',
-  JOB_DELIVER: 'trp:job:deliver',
-  JOB_RESULT: 'trp:job:result',
+  JOB_ASSIGNED: 'typerp:job:assigned',
+  JOB_REQUEST: 'typerp:job:request',
+  JOB_DELIVER: 'typerp:job:deliver',
+  JOB_RESULT: 'typerp:job:result',
 } as const;

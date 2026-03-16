@@ -7,18 +7,18 @@ The physical structure is isolated to avoid accidentally serving development fil
 ```txt
 server-data/
   resources/
-    [trp-framework]/
+    [typerp-framework]/
       ...compiled runtime resources...
-  trp-framework/
+  typerp-framework/
     ...source monorepo...
 ```
 
-The monorepo source directory (`server-data/trp-framework/`) must **never** be interpreted or treated as a FiveM resource.
-The FiveM server must only consume what is emitted into: `../resources/[trp-framework]/`
+The monorepo source directory (`server-data/typerp-framework/`) must **never** be interpreted or treated as a FiveM resource.
+The FiveM server must only consume what is emitted into: `../resources/[typerp-framework]/`
 
 ## Execution Output Contract
 
-Runtime resources emitted by TRP Framework must generally have exactly one `fxmanifest.lua` at their root.
+Runtime resources emitted by typerp Framework must generally have exactly one `fxmanifest.lua` at their root.
 Default rules:
 
 - `fx_version 'cerulean'`
@@ -32,6 +32,6 @@ The `GAME_DESIGN_SPEC.md` file contains future gameplay/system design context an
 
 Kernel ownership rule:
 
-- `@trp/core-kernel` owns DB/Redis/BullMQ initialization.
+- `typerp/resources/core/kernel` owns DB/Redis/BullMQ initialization.
 - Gameplay resources should not initialize those infrastructure clients directly.
 - Stateful cross-resource capabilities are consumed through runtime exports/public APIs.

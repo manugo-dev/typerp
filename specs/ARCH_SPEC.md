@@ -23,10 +23,10 @@ Future higher-level gameplay and systems design lives in `GAME_DESIGN_SPEC.md` a
 
 ## 2. Project Identity
 
-- **Project name:** `trp-framework`
-- **Repository root:** `server-data/trp-framework/`
-- **FiveM runtime output target:** `server-data/resources/[trp-framework]/`
-- **Source runtime resources root:** `server-data/trp-framework/resources-src/`
+- **Project name:** `typerp`
+- **Repository root:** `server-data/typerp/`
+- **FiveM runtime output target:** `server-data/resources/[typerp]/`
+- **Source runtime resources root:** `server-data/typerp/resources-src/`
 
 The source repository must not live inside FiveM's runtime `resources/` directory.
 The repository lives beside it, and build/runtime targets emit compiled resources into the final runtime location.
@@ -81,18 +81,18 @@ The required disk structure is:
 ```txt
 server-data/
   resources/
-    [trp-framework]/
+    [typerp]/
       ...compiled runtime resources only...
-  trp-framework/
+  typerp/
     ...source monorepo...
 ```
 
 Rules:
 
-- `server-data/trp-framework/` is the source repository that goes to Git.
-- `server-data/resources/[trp-framework]/` is the compiled runtime output consumed by FiveM.
+- `server-data/typerp/` is the source repository that goes to Git.
+- `server-data/resources/[typerp]/` is the compiled runtime output consumed by FiveM.
 - Source and runtime must remain strictly separated.
-- The build must emit directly into `../resources/[trp-framework]/<resource-name>` from inside the source repo.
+- The build must emit directly into `../resources/[typerp]/<resource-name>` from inside the source repo.
 - No manual copying of compiled output should be required after build.
 
 ---
@@ -107,7 +107,7 @@ A resource is expected to have a valid `fxmanifest.lua` in its root.
 Only real runtime resources may be emitted into:
 
 ```txt
-../resources/[trp-framework]/
+../resources/[typerp]/
 ```
 
 Do not emit:
@@ -126,8 +126,8 @@ Do not emit:
 Each emitted runtime resource must be isolated and restartable individually using FiveM commands such as:
 
 - `refresh`
-- `ensure [trp-framework]`
-- `restart trp-identity`
+- `ensure [typerp]`
+- `restart typerp-identity`
 
 ### 6.3 Runtime source location
 
@@ -200,8 +200,8 @@ Do not rely on manifest `export` / `server_export` declarations unless a very sp
 
 The architecture must preserve the future possibility of using `provide` for compatibility resources such as:
 
-- `trp-compat-esx`
-- `trp-compat-qbcore`
+- `typerp-compat-esx`
+- `typerp-compat-qbcore`
 
 ### 7.9 Validation
 
@@ -566,9 +566,9 @@ Rules:
 `packages/contracts` must not become a broad god-package.
 It must be structured by domain and subpath exports, for example:
 
-- `@trp/contracts/core`
-- `@trp/contracts/identity`
-- `@trp/contracts/simple-job`
+- `@typerp/contracts/core`
+- `@typerp/contracts/identity`
+- `@typerp/contracts/simple-job`
 
 Do not create one giant barrel reexporting everything.
 Use granular exports and imports.
@@ -623,9 +623,9 @@ Rules:
 
 The primary runtime infrastructure owner must be:
 
-- `trp-core-kernel`
+- `typerp-core-kernel`
 
-`trp-core-kernel` is responsible for owning and initializing:
+`typerp-core-kernel` is responsible for owning and initializing:
 
 - PostgreSQL / Drizzle
 - Redis
@@ -662,14 +662,14 @@ This rule exists to avoid:
 Runtime resources should not do this by default:
 
 ```ts
-import { db } from '@trp/database';
+import { db } from '@typerp/database';
 ```
 
 if that implies direct independent runtime initialization in many resources.
 
 ### 20.3 Kernel-owned access
 
-Heavy runtime services must be owned by `trp-core-kernel` and accessed through public runtime APIs or kernel-owned service access patterns.
+Heavy runtime services must be owned by `typerp-core-kernel` and accessed through public runtime APIs or kernel-owned service access patterns.
 
 ---
 
@@ -901,8 +901,8 @@ It must not become scattered hacks inside the kernel.
 
 Future compatibility resources may include:
 
-- `trp-compat-esx`
-- `trp-compat-qbcore`
+- `typerp-compat-esx`
+- `typerp-compat-qbcore`
 
 Potential future use of `provide` in manifests must remain possible.
 
@@ -985,7 +985,7 @@ The repository should remain runnable and aligned after each phase.
 The architecture is only acceptable if all of these are true over time:
 
 - source repo remains separate from runtime output
-- runtime output goes to `../resources/[trp-framework]/`
+- runtime output goes to `../resources/[typerp]/`
 - no ghost resources are emitted
 - each runtime resource has exactly one valid manifest
 - manifests reference only real files

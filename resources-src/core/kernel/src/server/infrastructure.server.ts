@@ -1,39 +1,39 @@
-import { createDatabaseClient, schema, eq } from '@trp/database';
-import { createQueue, getRedisConnection } from '@trp/redis';
+import { createDatabaseClient, eq, schema } from "@typerp/database";
+import { createQueue, getRedisConnection } from "@typerp/redis";
 
 export interface KernelInfrastructureServices {
-  readonly database: {
-    readonly db: ReturnType<typeof createDatabaseClient>;
-    readonly schema: typeof schema;
-    readonly eq: typeof eq;
-  };
-  readonly redis: {
-    readonly connection: ReturnType<typeof getRedisConnection>;
-    createQueue: typeof createQueue;
-  };
+	readonly database: {
+		readonly db: ReturnType<typeof createDatabaseClient>;
+		readonly eq: typeof eq;
+		readonly schema: typeof schema;
+	};
+	readonly redis: {
+		readonly connection: ReturnType<typeof getRedisConnection>;
+		createQueue: typeof createQueue;
+	};
 }
 
 let cachedServices: KernelInfrastructureServices | null = null;
 
 export function initializeInfrastructureServices(): KernelInfrastructureServices {
-  if (cachedServices) {
-    return cachedServices;
-  }
+	if (cachedServices) {
+		return cachedServices;
+	}
 
-  const db = createDatabaseClient();
-  const connection = getRedisConnection();
+	const database = createDatabaseClient();
+	const connection = getRedisConnection();
 
-  cachedServices = {
-    database: {
-      db,
-      schema,
-      eq,
-    },
-    redis: {
-      connection,
-      createQueue,
-    },
-  };
+	cachedServices = {
+		database: {
+			db: database,
+			eq,
+			schema,
+		},
+		redis: {
+			connection,
+			createQueue,
+		},
+	};
 
-  return cachedServices;
+	return cachedServices;
 }

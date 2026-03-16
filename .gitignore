@@ -7,10 +7,6 @@ dist-*
 .nx/
 *.tsbuildinfo
 
-# FiveM specific
-# Note: we do not ignore `resources-src` as it's the source.
-# Runtime resources in `../resources/[trp-framework]/` are outside this repo.
-
 # Misc
 .DS_Store
 .env

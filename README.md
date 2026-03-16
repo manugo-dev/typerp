@@ -1,6 +1,6 @@
-# TRP Framework
+# TypeRP Framework
 
-This is the source monorepo for TRP Framework.
+This is the source monorepo for TypeRP Framework.
 
 ## Structure
 
@@ -14,7 +14,7 @@ This is the source monorepo for TRP Framework.
 ## Note on Runtime
 
 This directory must _not_ be placed within the FiveM `resources/` directly.
-Runtime output will be generated into `../resources/[trp-framework]/`.
+Runtime output will be generated into `../resources/[typerp-framework]/`.
 
 ### Developing Context Safe Runtime Resources
 
@@ -30,8 +30,8 @@ Resource-local `shared/` is only for small code reused by the same resource's cl
 ### Build Pipeline
 
 Execute `pnpm build:runtime` from the monorepo root.
-This utilizes `esbuild` to transpile and bundle your source projects independently. It will automatically inline your internal `@trp/*` workspace packages so FiveM gets flat execution files.
+This utilizes `esbuild` to transpile and bundle your source projects independently. It will automatically inline your internal `@typerp/*` workspace packages so FiveM gets flat execution files.
 
-The bundler also automatically constructs `fxmanifest.lua` based on the found source files, emitting everything directly to the deployed `../resources/[trp-framework]/<resource_name>` folder.
+The bundler also automatically constructs `fxmanifest.lua` based on the found source files, emitting everything directly to the deployed `../resources/[typerp-framework]/<resource_name>` folder.
 
-Infrastructure ownership rule: runtime DB/Redis/BullMQ initialization is centralized in `@trp/core-kernel`. Gameplay resources consume stateful capabilities through runtime exports/public APIs.
+Infrastructure ownership rule: runtime DB/Redis/BullMQ initialization is centralized in `typerp/resources/core/kernel` Gameplay resources consume stateful capabilities through runtime exports/public APIs.

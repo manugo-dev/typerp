@@ -1,4 +1,4 @@
 export const IdentityEvents = {
-  CHARACTER_LOADED: 'trp:identity:characterLoaded',
-  CHARACTER_CREATED: 'trp:identity:characterCreated',
+  CHARACTER_LOADED: 'typerp:identity:characterLoaded',
+  CHARACTER_CREATED: 'typerp:identity:characterCreated',
 } as const;

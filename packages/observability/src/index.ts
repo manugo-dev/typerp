@@ -1,9 +1,9 @@
 import pino from 'pino';
-import { getConfig } from '@trp/config';
+import { getConfig } from '@typerp/config';
 
 let sharedLogger: pino.Logger;
 
-export function getLogger(name: string = 'trp-framework'): pino.Logger {
+export function getLogger(name: string = 'typerp'): pino.Logger {
   if (!sharedLogger) {
     const config = getConfig();
     const options: pino.LoggerOptions = {

@@ -1,32 +1,11 @@
-import { getConfig } from '@trp/config';
-import { KERNEL_RESOURCE_NAME, type KernelServiceManifest } from '../shared/kernel.shared';
+import { getConfig } from "@typerp/config";
+
+import { KERNEL_RESOURCE_NAME } from "../shared/kernel.shared";
 import {
-  initializeInfrastructureServices,
-  type KernelInfrastructureServices,
-} from './infrastructure.server';
-
-class ServiceRegistry {
-  private readonly services = new Map<string, unknown>();
-
-  register(name: string, service: unknown): void {
-    if (this.services.has(name)) {
-      console.warn(`[Kernel] Service '${name}' is already registered. Overwriting.`);
-    }
-    this.services.set(name, service);
-  }
-
-  get<T = unknown>(name: string): T | undefined {
-    return this.services.get(name) as T | undefined;
-  }
-
-  getManifests(): KernelServiceManifest[] {
-    return Array.from(this.services.keys()).map((name) => ({
-      name,
-      version: '1.0.0',
-      ready: true,
-    }));
-  }
-}
+	initializeInfrastructureServices,
+	type KernelInfrastructureServices,
+} from "./infrastructure.server";
+import { ServiceRegistry } from "./service-registry.server";
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Initializing server runtime...`);
 
@@ -34,17 +13,17 @@ const serviceRegistry = new ServiceRegistry();
 const frameworkConfig = getConfig();
 const infrastructureServices = initializeInfrastructureServices();
 
-global.exports('registerService', (name: string, service: unknown) => {
-  serviceRegistry.register(name, service);
+globalThis.exports("registerService", (name: string, service: unknown) => {
+	serviceRegistry.register(name, service);
 });
-global.exports('getService', (name: string) => serviceRegistry.get(name));
-global.exports('getServicesManifest', () => serviceRegistry.getManifests());
-global.exports('getFrameworkConfig', () => frameworkConfig);
-global.exports(
-  'getInfrastructureServices',
-  (): KernelInfrastructureServices => infrastructureServices,
+globalThis.exports("getService", (name: string) => serviceRegistry.get(name));
+globalThis.exports("getServicesManifest", () => serviceRegistry.getManifests());
+globalThis.exports("getFrameworkConfig", () => frameworkConfig);
+globalThis.exports(
+	"getInfrastructureServices",
+	(): KernelInfrastructureServices => infrastructureServices,
 );
 
 console.log(
-  `[${KERNEL_RESOURCE_NAME}] Ready. locale=${frameworkConfig.locale}, logLevel=${frameworkConfig.logLevel}`,
+	`[${KERNEL_RESOURCE_NAME}] Ready. locale=${frameworkConfig.locale}, logLevel=${frameworkConfig.logLevel}`,
 );

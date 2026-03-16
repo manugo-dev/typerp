@@ -5,7 +5,7 @@ import * as esbuild from 'esbuild';
 
 const ROOT_DIR = path.resolve(process.cwd());
 const RESOURCES_SRC = path.join(ROOT_DIR, 'resources-src');
-const OUTPUT_DIR = path.join(ROOT_DIR, '../resources/[trp-framework]');
+const OUTPUT_DIR = path.join(ROOT_DIR, '../resources/[typerp]');
 
 /**
  * Recursively find all resource directories that contain a package.json.
@@ -78,8 +78,8 @@ async function buildResource(sourcePath) {
   if (!fs.existsSync(pkgPath)) return;
 
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  const rawName = pkg.name; // e.g., @trp/core-kernel
-  const resourceName = rawName.startsWith('@trp/') ? rawName.replace('@trp/', '') : rawName;
+  const rawName = pkg.name; // e.g., @typerp/core-kernel
+  const resourceName = rawName.startsWith('@typerp/') ? rawName.replace('@typerp/', '') : rawName;
 
   const srcServer = findEntrypoint(path.join(sourcePath, 'src', 'server'), '.server.ts');
   const srcClient = findEntrypoint(path.join(sourcePath, 'src', 'client'), '.client.ts');
@@ -107,7 +107,7 @@ async function buildResource(sourcePath) {
     const workspaceResolverPlugin = {
       name: 'workspace-resolver',
       setup(build) {
-        build.onResolve({ filter: /^@trp\// }, (args) => {
+        build.onResolve({ filter: /^@typerp\// }, (args) => {
           const [, packageName, ...subpathParts] = args.path.split('/');
           const packageRoot = path.join(ROOT_DIR, 'packages', packageName, 'src');
           const entryPath =

@@ -1,32 +1,36 @@
-import { getConfig } from '@trp/config';
-import type { CharacterCreate } from '@trp/contracts/identity/types';
-import { IdentityService } from './service.server';
+import { getConfig } from "@typerp/config";
+import type { CharacterCreate } from "@typerp/contracts/identity/types";
 
-const IDENTITY_RESOURCE_NAME = 'identity';
+import { IdentityService } from "./service.server";
 
-type KernelExports = {
-  registerService: (name: string, service: unknown) => void;
-  getInfrastructureServices: () => Parameters<typeof IdentityService>[0];
-};
+const IDENTITY_RESOURCE_NAME = "identity";
 
-const kernel = exports['core-kernel'] as KernelExports | undefined;
-if (!kernel) {
-  throw new Error(
-    '[Identity] core-kernel exports are unavailable. Ensure dependency ordering is correct.',
-  );
-}
+const kernel = globalThis.exports["core-kernel"];
 
 const config = getConfig();
+
+if (!kernel) {
+	throw new Error(
+		"Kernel exports not found. Ensure that the kernel resource is running and exports are properly defined.",
+	);
+}
+
 const identityService = new IdentityService(kernel.getInfrastructureServices());
 
-console.log(`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`);
+console.log(
+	`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`,
+);
 
-kernel.registerService('identity', {
-  name: IDENTITY_RESOURCE_NAME,
-  version: '0.1.0',
+kernel.registerService("identity", {
+	name: IDENTITY_RESOURCE_NAME,
+	version: "0.1.0",
 });
 
-global.exports('getCharacters', (licenseId: string) => identityService.getCharacters(licenseId));
-global.exports('createCharacter', (data: CharacterCreate) => identityService.createCharacter(data));
+globalThis.exports("getCharacters", (licenseId: string) =>
+	identityService.getCharacters(licenseId),
+);
+globalThis.exports("createCharacter", (data: CharacterCreate) =>
+	identityService.createCharacter(data),
+);
 
 console.log(`[${IDENTITY_RESOURCE_NAME}] Server initialization complete.`);
