@@ -17,9 +17,7 @@ if (!kernel) {
 
 const identityService = new IdentityService(kernel.getInfrastructureServices());
 
-console.log(
-	`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`,
-);
+console.log(`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`);
 
 kernel.registerService("identity", {
 	name: IDENTITY_RESOURCE_NAME,

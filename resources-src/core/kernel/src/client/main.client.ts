@@ -1,13 +1,13 @@
 import { KERNEL_RESOURCE_NAME } from "../shared/kernel.shared";
-import { ClientServiceRegistry } from "./service-registry.client";
+import { ClientResourceRegistry } from "./registry.client";
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Initializing client runtime...`);
 
-const registry = new ClientServiceRegistry();
+const registry = new ClientResourceRegistry();
 
-globalThis.exports("registerClientService", (name: string, service: unknown) =>
-	registry.register(name, service),
+globalThis.exports("registerClientResource", (name: string, resource: unknown) =>
+	registry.register(name, resource),
 );
-globalThis.exports("getClientService", (name: string) => registry.get(name));
+globalThis.exports("getClientResource", (name: string) => registry.get(name));
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Client initialization complete.`);

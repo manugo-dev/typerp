@@ -6,7 +6,7 @@ import type { KernelInfrastructureServices } from "./infrastructure.server";
 export type KernelServerExports = {
 	getFrameworkConfig: () => FrameworkConfig;
 	getInfrastructureServices: () => KernelInfrastructureServices;
-	getService: (name: string) => unknown;
-	getServicesManifest: () => KernelServiceManifest[];
-	registerService: (name: string, service: unknown) => void;
+	getServerResource: (name: string) => unknown;
+	getManifests: () => KernelServiceManifest[];
+	registerServerResource: (name: string, service: unknown) => void;
 };

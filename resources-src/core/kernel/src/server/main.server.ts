@@ -5,19 +5,19 @@ import {
 	initializeInfrastructureServices,
 	type KernelInfrastructureServices,
 } from "./infrastructure.server";
-import { ServiceRegistry } from "./service-registry.server";
+import { ServerResourceRegistry } from "./registry.server";
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Initializing server runtime...`);
 
-const serviceRegistry = new ServiceRegistry();
+const serverResources = new ServerResourceRegistry();
 const frameworkConfig = getConfig();
 const infrastructureServices = initializeInfrastructureServices();
 
-globalThis.exports("registerService", (name: string, service: unknown) => {
-	serviceRegistry.register(name, service);
+globalThis.exports("registerServerResource", (name: string, service: unknown) => {
+	serverResources.register(name, service);
 });
-globalThis.exports("getService", (name: string) => serviceRegistry.get(name));
-globalThis.exports("getServicesManifest", () => serviceRegistry.getManifests());
+globalThis.exports("getServerResource", (name: string) => serverResources.get(name));
+globalThis.exports("getManifests", () => serverResources.getManifests());
 globalThis.exports("getFrameworkConfig", () => frameworkConfig);
 globalThis.exports(
 	"getInfrastructureServices",

@@ -31,10 +31,7 @@ const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [
 	},
 ];
 
-const activeJobs = new Map<
-	number,
-	{ assignment: JobAssignment; state: JobState }
->();
+const activeJobs = new Map<number, { assignment: JobAssignment; state: JobState }>();
 let jobCounter = 0;
 
 async function getPlayerIdentity(source: number): Promise<Character[] | null> {
@@ -43,7 +40,7 @@ async function getPlayerIdentity(source: number): Promise<Character[] | null> {
 		const license = identifiers.find((id: string) => id.startsWith("license:"));
 		if (!license) throw new Error("License identifier not found for player");
 
-		const identity = globalThis.exports.identity;
+		const identity = globalThis.exports["gameplay-identity"];
 		if (!identity) throw new Error("Identity service not available");
 
 		const characters = await identity.getCharacters(license);
@@ -74,8 +71,7 @@ onNet(JobEvents.JOB_REQUEST, async () => {
 		return;
 	}
 
-	const template =
-		JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)]!;
+	const template = JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)]!;
 	const assignment: JobAssignment = {
 		...template,
 		jobId: `job_${++jobCounter}`,

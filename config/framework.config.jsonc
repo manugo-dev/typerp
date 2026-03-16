@@ -1,9 +1,9 @@
 {
-  "name": "typerp",
-  "version": "0.1.0",
-  "locale": "en",
-  "timezone": "UTC",
-  "debugMode": false,
-  // Logging level: "error" | "warn" | "info" | "debug"
-  "logLevel": "info"
+	"name": "typerp",
+	"version": "0.1.0",
+	"locale": "en",
+	"timezone": "UTC",
+	"debugMode": false,
+	// Logging level: "error" | "warn" | "info" | "debug"
+	"logLevel": "info",
 }

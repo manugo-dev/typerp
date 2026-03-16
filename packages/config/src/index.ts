@@ -19,11 +19,7 @@ let _config: FrameworkConfig | null = null;
 function findConfigFile(startDirectory: string): string | null {
 	let currentDirectory = startDirectory;
 	for (let index = 0; index < 6; index++) {
-		const candidate = path.join(
-			currentDirectory,
-			"config",
-			"framework.config.jsonc",
-		);
+		const candidate = path.join(currentDirectory, "config", "framework.config.jsonc");
 		if (fs.existsSync(candidate)) return candidate;
 		const parent = path.dirname(currentDirectory);
 		if (parent === currentDirectory) break;
@@ -53,21 +49,14 @@ export function loadConfig(): FrameworkConfig {
 	if (configPath) {
 		base = readJsoncFile(configPath);
 	} else {
-		console.warn(
-			"[Config] config/framework.config.jsonc not found — using schema defaults only.",
-		);
+		console.warn("[Config] config/framework.config.jsonc not found — using schema defaults only.");
 	}
 
 	const result = FrameworkConfigSchema.safeParse(base);
 
 	if (!result.success) {
-		console.error(
-			"[Config] Configuration validation failed:",
-			result.error.format(),
-		);
-		throw new Error(
-			"[Config] Invalid framework configuration. See errors above.",
-		);
+		console.error("[Config] Configuration validation failed:", result.error.format());
+		throw new Error("[Config] Invalid framework configuration. See errors above.");
 	}
 
 	_config = result.data;
