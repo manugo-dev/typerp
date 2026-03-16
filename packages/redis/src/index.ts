@@ -1,20 +1,16 @@
 /**
- * @typerp/redis — Redis connection and BullMQ helpers
+ * @typerp/redis — Redis connection helpers
  *
  * Context: SERVER only.
  * REDIS_URL must be provided as an environment variable override when running with
  * the JSONC-based config, since connection secrets are not stored in JSONC.
  */
 import { Redis, type RedisOptions } from "ioredis";
-import { Queue, Worker, type ConnectionOptions } from "bullmq";
-import type { Processor } from "bullmq";
-import { getConfig } from "@typerp/config";
 
 // Shared singleton connection
 let sharedRedisConnection: Redis | undefined;
 
 function getRedisUrl(): string {
-	const config = getConfig();
 	const url = "";
 	if (!url) {
 		throw new Error(
@@ -36,26 +32,5 @@ export function getRedisConnection(): Redis {
 	return sharedRedisConnection;
 }
 
-// ---------------------------------------------------------------------------
-// BullMQ helpers
-// ---------------------------------------------------------------------------
-
-// The connection type between ioredis and bullmq is compatible at runtime but
-// the TS generics diverge slightly. We use ConnectionOptions which accepts IORedis.
-function getConnection(): ConnectionOptions {
-	return getRedisConnection() as unknown as ConnectionOptions;
-}
-
-export function createQueue<T = unknown, R = unknown>(name: string) {
-	return new Queue<T, R>(name, { connection: getConnection() });
-}
-
-export function createWorker<T = unknown, R = unknown>(
-	name: string,
-	processor: Processor<T, R>,
-) {
-	return new Worker<T, R>(name, processor, { connection: getConnection() });
-}
-
-export { Queue, Worker, Redis };
-export type { RedisOptions, ConnectionOptions };
+export { Redis };
+export type { RedisOptions };

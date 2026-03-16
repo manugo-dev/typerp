@@ -33,6 +33,7 @@ function findResources(dir) {
 	const entries = fs.readdirSync(dir, { withFileTypes: true });
 	for (const entry of entries) {
 		if (!entry.isDirectory()) continue;
+		if (entry.name === "node_modules") continue;
 		const fullPath = path.join(dir, entry.name);
 		const pkgPath = path.join(fullPath, "package.json");
 		if (fs.existsSync(pkgPath)) {
@@ -239,7 +240,7 @@ function generateManifest(outDir, manifestData) {
 }
 
 async function run() {
-	console.log("🚀 Starting TRP Framework Runtime Build...");
+	console.log("🚀 Starting TypeRP Framework Runtime Build...");
 
 	const resources = findResources(RESOURCES_SRC);
 

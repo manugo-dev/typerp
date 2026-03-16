@@ -1,24 +1,24 @@
 {
-  "name": "@typerp/job-simple",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "sideEffects": false,
-  "main": "src/server/main.server.ts",
-  "dependencies": {
-    "@typerp/config": "workspace:*",
-    "@typerp/contracts": "workspace:*",
-    "@typerp/core-kernel": "workspace:*",
-    "@typerp/identity": "workspace:*"
-  },
-  "fxmanifest": {
-    "dependencies": [
-      "core-kernel",
-      "identity"
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
-  }
+	"name": "@typerp/job-simple",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"sideEffects": false,
+	"main": "src/server/main.server.ts",
+	"dependencies": {
+		"@typerp/config": "workspace:*",
+		"@typerp/contracts": "workspace:*",
+		"@typerp/core-kernel": "workspace:*",
+		"@typerp/identity": "workspace:*"
+	},
+	"fxmanifest": {
+		"dependencies": [
+			"typerp-core-kernel",
+			"typerp-gameplay-identity"
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit"
+	}
 }

@@ -40,7 +40,7 @@ async function getPlayerIdentity(source: number): Promise<Character[] | null> {
 		const license = identifiers.find((id: string) => id.startsWith("license:"));
 		if (!license) throw new Error("License identifier not found for player");
 
-		const identity = globalThis.exports["gameplay-identity"];
+		const identity = globalThis.exports["typerp-gameplay-identity"];
 		if (!identity) throw new Error("Identity service not available");
 
 		const characters = await identity.getCharacters(license);
@@ -120,9 +120,9 @@ on("playerDropped", () => {
 console.log(`[${JOB_RESOURCE_NAME}] Initializing simple job module...`);
 console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${config.locale}`);
 
-const kernel = globalThis.exports["core-kernel"];
+const kernel = globalThis.exports["typerp-core-kernel"];
 
-kernel?.registerService("job-simple", {
+kernel?.registerServerResource("gameplay-simple-job", {
 	name: JOB_RESOURCE_NAME,
 	version: "0.1.0",
 });

@@ -1,17 +1,6 @@
-import { createDatabaseClient, eq, schema } from "@typerp/database";
-import { createQueue, getRedisConnection } from "@typerp/redis";
-
-export interface KernelInfrastructureServices {
-	readonly database: {
-		readonly db: ReturnType<typeof createDatabaseClient>;
-		readonly eq: typeof eq;
-		readonly schema: typeof schema;
-	};
-	readonly redis: {
-		readonly connection: ReturnType<typeof getRedisConnection>;
-		createQueue: typeof createQueue;
-	};
-}
+import type { KernelInfrastructureServices } from "@typerp/contracts/kernel/types";
+import { getRedisConnection } from "@typerp/redis";
+import { initializeKernelDatabaseServices } from "./database.server";
 
 let cachedServices: KernelInfrastructureServices | null = null;
 
@@ -20,18 +9,13 @@ export function initializeInfrastructureServices(): KernelInfrastructureServices
 		return cachedServices;
 	}
 
-	const database = createDatabaseClient();
-	const connection = getRedisConnection();
+	const database = initializeKernelDatabaseServices();
+	const redisConnection = getRedisConnection();
 
 	cachedServices = {
-		database: {
-			db: database,
-			eq,
-			schema,
-		},
+		database,
 		redis: {
-			connection,
-			createQueue,
+			connection: redisConnection,
 		},
 	};
 

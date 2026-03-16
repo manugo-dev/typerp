@@ -1,7 +1,7 @@
 import type { FrameworkConfig } from "@typerp/config";
+import type { KernelInfrastructureServices } from "@typerp/contracts/kernel/infrastructure";
 
 import type { KernelServiceManifest } from "../shared/kernel.shared";
-import type { KernelInfrastructureServices } from "./infrastructure.server";
 
 export type KernelServerExports = {
 	getFrameworkConfig: () => FrameworkConfig;

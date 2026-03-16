@@ -1,6 +1,6 @@
 # GAME_DESIGN_SPEC.md
 
-## TRP Framework — High-Level Game Design and Systems Specification
+## TypeRP Framework — High-Level Game Design and Systems Specification
 
 Status: complementary document  
 Project: `typerp`
@@ -9,7 +9,8 @@ Project: `typerp`
 
 ## 1. Purpose
 
-This document captures the medium/long-term gameplay vision, systemic design principles, and future gameplay directions for TRP Framework.
+This document captures the medium/long-term gameplay vision, systemic design principles, and future
+gameplay directions for TypeRP Framework.
 
 It must not be confused with `ARCH_SPEC.md`.
 
@@ -36,14 +37,15 @@ It must not be confused with `ARCH_SPEC.md`.
 
 Rule:
 
-- The AI agent must not try to implement everything in this document during the early phases unless a phase explicitly asks for it.
+- The AI agent must not try to implement everything in this document during the early phases unless
+  a phase explicitly asks for it.
 - The technical architecture must remain compatible with these future directions.
 
 ---
 
 ## 2. General game design philosophy
 
-TRP Framework should aim for systemic, deep, modular, configurable roleplay.
+TypeRP Framework should aim for systemic, deep, modular, configurable roleplay.
 
 Principles:
 
@@ -66,7 +68,8 @@ The framework architecture must allow:
 
 ## 3. Implementation priority
 
-Even though this document describes a broad vision, the first project phases must focus on the technical foundation.
+Even though this document describes a broad vision, the first project phases must focus on the
+technical foundation.
 
 Correct order:
 
@@ -84,7 +87,8 @@ This document does not require all of these systems to be implemented in v1.
 
 ### 4.1. Goal
 
-The framework should be able to evolve toward richer social governance and moderation tools beyond simple ban/kick actions.
+The framework should be able to evolve toward richer social governance and moderation tools beyond
+simple ban/kick actions.
 
 ### 4.2. Future direction
 
@@ -115,7 +119,8 @@ The architecture must leave room for:
 
 ### 5.1. Goal
 
-TRP Framework should support a meaningful penal system where justice is not just an administrative command.
+TypeRP Framework should support a meaningful penal system where justice is not just an
+administrative command.
 
 ### 5.2. Future direction
 
@@ -161,7 +166,8 @@ Examples of possible evolution:
 
 ### 6.3. Restriction
 
-This is not an early implementation requirement, but it is a direction the architecture must remain compatible with.
+This is not an early implementation requirement, but it is a direction the architecture must remain
+compatible with.
 
 ### 6.4. Derived technical requirement
 
@@ -178,7 +184,7 @@ It is desirable to preserve the possibility of:
 
 ### 7.1. Goal
 
-TRP Framework should support multiple characters per user/account if the server wants it.
+TypeRP Framework should support multiple characters per user/account if the server wants it.
 
 ### 7.2. Future direction
 
@@ -200,7 +206,8 @@ Identity must not be modeled so rigidly that multicharacter becomes impossible l
 
 ### 8.1. Goal
 
-The framework should be able to evolve toward systems where certain functions continue operating even when not enough players are present in key roles.
+The framework should be able to evolve toward systems where certain functions continue operating
+even when not enough players are present in key roles.
 
 ### 8.2. Examples
 
@@ -222,7 +229,7 @@ The modular design must not always assume constant human presence in every role.
 
 ### 9.1. Goal
 
-TRP Framework should support medium/long-term territorial systems.
+TypeRP Framework should support medium/long-term territorial systems.
 
 ### 9.2. Future direction
 
@@ -247,7 +254,8 @@ World and zone architecture must not be closed in a way that later prevents:
 
 ### 10.1. Goal
 
-The framework should be able to evolve toward systems where properties, businesses, or assets are not infinitely static.
+The framework should be able to evolve toward systems where properties, businesses, or assets are
+not infinitely static.
 
 ### 10.2. Future direction
 
@@ -267,7 +275,8 @@ Ownership models must be rich enough to support future states and transitions.
 
 ### 11.1. Goal
 
-The framework economy should be able to evolve toward a system with real weight, maintenance, and friction, not just numbers without consequences.
+The framework economy should be able to evolve toward a system with real weight, maintenance, and
+friction, not just numbers without consequences.
 
 ### 11.2. Future direction
 
@@ -300,7 +309,8 @@ Servers should be able to:
 
 ## 13. Requirements for technical architecture
 
-Even though this document does not require immediate implementation of these systems, the technical architecture must avoid decisions that make them impossible or extremely expensive to add later.
+Even though this document does not require immediate implementation of these systems, the technical
+architecture must avoid decisions that make them impossible or extremely expensive to add later.
 
 It must especially preserve room for:
 
@@ -317,7 +327,8 @@ It must especially preserve room for:
 
 ## 14. Priority rule for AI agent
 
-If the AI agent is working on early technical phases, it must use this document only as future compatibility guidance, not as an instruction to implement all of these systems immediately.
+If the AI agent is working on early technical phases, it must use this document only as future
+compatibility guidance, not as an instruction to implement all of these systems immediately.
 
 The early priority remains:
 

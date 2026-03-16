@@ -1,10 +1,13 @@
-# TRP Framework — ARCH_SPEC
+# TypeRP Framework — ARCH_SPEC
 
 ## 1. Purpose of This Document
 
-This document is the primary source of truth for the technical architecture, implementation constraints, repository structure, runtime model, coding standards, and phased delivery rules of **TRP Framework**.
+This document is the primary source of truth for the technical architecture, implementation
+constraints, repository structure, runtime model, coding standards, and phased delivery rules of
+**TypeRP Framework**.
 
-Any AI agent or human contributor working on this repository must read and follow this document before making changes.
+Any AI agent or human contributor working on this repository must read and follow this document
+before making changes.
 
 This specification is intentionally strict. It exists to keep the project:
 
@@ -16,8 +19,9 @@ This specification is intentionally strict. It exists to keep the project:
 - deterministic in runtime behavior
 - practical to implement without overengineering
 
-This document is focused on **framework architecture and implementation**.
-Future higher-level gameplay and systems design lives in `GAME_DESIGN_SPEC.md` and must not be treated as mandatory implementation scope for early phases unless explicitly requested.
+This document is focused on **framework architecture and implementation**. Future higher-level
+gameplay and systems design lives in `GAME_DESIGN_SPEC.md` and must not be treated as mandatory
+implementation scope for early phases unless explicitly requested.
 
 ---
 
@@ -28,35 +32,38 @@ Future higher-level gameplay and systems design lives in `GAME_DESIGN_SPEC.md` a
 - **FiveM runtime output target:** `server-data/resources/[typerp]/`
 - **Source runtime resources root:** `server-data/typerp/resources-src/`
 
-The source repository must not live inside FiveM's runtime `resources/` directory.
-The repository lives beside it, and build/runtime targets emit compiled resources into the final runtime location.
+The source repository must not live inside FiveM's runtime `resources/` directory. The repository
+lives beside it, and build/runtime targets emit compiled resources into the final runtime location.
 
 ---
 
 ## 3. High-Level Goals
 
-TRP Framework is a TypeScript-first, modular, server-authoritative FiveM roleplay framework built from scratch.
+TypeRP Framework is a TypeScript-first, modular, server-authoritative FiveM roleplay framework built
+from scratch.
 
 The framework must:
 
 - be original and not use ESX, QBCore, or any other RP framework as its base
 - support long-term extensibility for internal and third-party modules/plugins
-- be architected for serious scalability targets, including OneSync Infinity servers aiming toward high concurrency
+- be architected for serious scalability targets, including OneSync Infinity servers aiming toward
+  high concurrency
 - provide a clean kernel/core foundation
 - make runtime resources deterministic and easy to operate in FiveM
 - support safe upgrades for framework consumers
 - support compatibility layers for legacy ESX/QBCore-oriented Lua scripts in later phases
 - avoid overengineering and avoid reinventing the wheel
 
-The target of 2048 concurrent players is an architectural ambition, not a guarantee from software alone.
-The framework must be designed to make such scale realistic through good architecture, not through unrealistic promises.
+The target of 2048 concurrent players is an architectural ambition, not a guarantee from software
+alone. The framework must be designed to make such scale realistic through good architecture, not
+through unrealistic promises.
 
 ---
 
 ## 4. Non-Goals for Early Phases
 
-The early phases must not try to implement the entire game.
-They must build a strong platform foundation first.
+The early phases must not try to implement the entire game. They must build a strong platform
+foundation first.
 
 Out of scope for early phases unless explicitly requested:
 
@@ -70,7 +77,8 @@ Out of scope for early phases unless explicitly requested:
 - complete compatibility with every ESX/QBCore script
 - final administration panel implementation
 
-The initial priority is the framework foundation, build pipeline, runtime structure, typing strategy, core services, example modules, and future compatibility paths.
+The initial priority is the framework foundation, build pipeline, runtime structure, typing
+strategy, core services, example modules, and future compatibility paths.
 
 ---
 
@@ -92,15 +100,16 @@ Rules:
 - `server-data/typerp/` is the source repository that goes to Git.
 - `server-data/resources/[typerp]/` is the compiled runtime output consumed by FiveM.
 - Source and runtime must remain strictly separated.
-- The build must emit directly into `../resources/[typerp]/<resource-name>` from inside the source repo.
+- The build must emit directly into `../resources/[typerp]/<resource-name>` from inside the source
+  repo.
 - No manual copying of compiled output should be required after build.
 
 ---
 
 ## 6. FiveM Runtime Model
 
-FiveM discovers resources inside `server-data/resources/`.
-A resource is expected to have a valid `fxmanifest.lua` in its root.
+FiveM discovers resources inside `server-data/resources/`. A resource is expected to have a valid
+`fxmanifest.lua` in its root.
 
 ### 6.1 Runtime output rules
 
@@ -123,7 +132,8 @@ Do not emit:
 
 ### 6.2 Runtime resources must be independently restartable
 
-Each emitted runtime resource must be isolated and restartable individually using FiveM commands such as:
+Each emitted runtime resource must be isolated and restartable individually using FiveM commands
+such as:
 
 - `refresh`
 - `ensure [typerp]`
@@ -169,7 +179,8 @@ For server-side JavaScript resources, the generated manifest must use:
 
 ### 7.4 Server-only resources
 
-If a resource has no client runtime code, no NUI, and no client packfile needs, the manifest should include:
+If a resource has no client runtime code, no NUI, and no client packfile needs, the manifest should
+include:
 
 - `server_only 'yes'`
 
@@ -184,21 +195,24 @@ and ensure all assets referenced by the manifest actually exist.
 
 ### 7.6 Dependencies
 
-Generated manifests must support `dependencies` when a resource requires another resource to be loaded first.
+Generated manifests must support `dependencies` when a resource requires another resource to be
+loaded first.
 
 ### 7.7 Exports policy
 
 Prefer exports defined in runtime code, such as:
 
 ```ts
-exports('name', fn);
+exports("name", fn);
 ```
 
-Do not rely on manifest `export` / `server_export` declarations unless a very specific compatibility reason exists.
+Do not rely on manifest `export` / `server_export` declarations unless a very specific compatibility
+reason exists.
 
 ### 7.8 Future compatibility support
 
-The architecture must preserve the future possibility of using `provide` for compatibility resources such as:
+The architecture must preserve the future possibility of using `provide` for compatibility resources
+such as:
 
 - `typerp-compat-esx`
 - `typerp-compat-qbcore`
@@ -268,17 +282,19 @@ No secondary validation library is allowed as a co-equal framework standard.
 
 - `Fastify + React`
 
-This is future-facing only and must not be implemented in the early foundation phases unless explicitly requested.
+This is future-facing only and must not be implemented in the early foundation phases unless
+explicitly requested.
 
 ---
 
 ## 9. Engineering Principle: Do Not Reinvent the Wheel
 
-TRP Framework must avoid reinventing the wheel.
+TypeRP Framework must avoid reinventing the wheel.
 
 Rules:
 
-- prefer mature, well-maintained, widely adopted tools and libraries when they solve the problem adequately
+- prefer mature, well-maintained, widely adopted tools and libraries when they solve the problem
+  adequately
 - do not create custom infrastructure packages for problems already solved well by the chosen stack
 - only build custom solutions when there is a clear and justified need
 
@@ -303,14 +319,14 @@ Examples of accepted tools:
 - GitHub Actions
 - jsonc-parser
 
-Avoid unnecessary wrappers and abstractions.
-Use thin integration layers only where they clearly improve consistency, reduce coupling, or protect public APIs.
+Avoid unnecessary wrappers and abstractions. Use thin integration layers only where they clearly
+improve consistency, reduce coupling, or protect public APIs.
 
 ---
 
 ## 10. Clean Code, Naming, and Comments Policy
 
-TRP Framework must enforce strict clean code standards.
+TypeRP Framework must enforce strict clean code standards.
 
 ### 10.1 General code rules
 
@@ -319,12 +335,13 @@ TRP Framework must enforce strict clean code standards.
 - functions, variables, types, files, and folders must use descriptive names
 - keep units cohesive and focused
 - avoid god files and god modules
-- avoid vague names like `data`, `temp`, `value`, `item`, `helper`, `manager`, `misc`, or `utils` unless context makes them truly correct
+- avoid vague names like `data`, `temp`, `value`, `item`, `helper`, `manager`, `misc`, or `utils`
+  unless context makes them truly correct
 
 ### 10.2 Comments policy
 
-Comments must be minimized.
-The code itself should explain what it is doing through naming and structure.
+Comments must be minimized. The code itself should explain what it is doing through naming and
+structure.
 
 Comments are only acceptable when they explain one of the following:
 
@@ -364,16 +381,14 @@ docs/
 
 ### 12.1 `apps/`
 
-Non-FiveM applications and future apps.
-Examples:
+Non-FiveM applications and future apps. Examples:
 
 - future admin panel
 - future workers or support tools if they become app-shaped
 
 ### 12.2 `packages/`
 
-Workspace libraries only.
-Never runtime FiveM resources.
+Workspace libraries only. Never runtime FiveM resources.
 
 ### 12.3 `resources-src/`
 
@@ -412,8 +427,8 @@ Required contexts:
 
 ### 13.1 Root ownership
 
-The TypeScript strategy must have one root source of truth.
-All tsconfig files must be centrally defined and rooted in the repository root.
+The TypeScript strategy must have one root source of truth. All tsconfig files must be centrally
+defined and rooted in the repository root.
 
 ### 13.2 Contexts
 
@@ -465,7 +480,8 @@ Rules:
 - do not introduce a dedicated `shared_script` optimization strategy at this stage
 - do not overengineer resource-local shared runtime code yet
 
-If code needs to be reused across multiple resources, it must live in `packages/*`, not in a resource-local `shared/` folder.
+If code needs to be reused across multiple resources, it must live in `packages/*`, not in a
+resource-local `shared/` folder.
 
 ---
 
@@ -481,7 +497,8 @@ Rules:
 
 Important:
 
-- do not force runtime artifacts to be “ESM for its own sake” if that conflicts with proven FiveM runtime compatibility
+- do not force runtime artifacts to be “ESM for its own sake” if that conflicts with proven FiveM
+  runtime compatibility
 - source is ESM-first
 - runtime output must be FiveM-compatible and validated in practice
 
@@ -489,7 +506,7 @@ Important:
 
 ## 15. Single Source of Truth for Root Configs
 
-TRP Framework must maintain one root source of truth for:
+TypeRP Framework must maintain one root source of truth for:
 
 - ESLint
 - Prettier
@@ -509,7 +526,7 @@ Rules:
 
 ### 16.1 Primary config format
 
-TRP Framework uses **JSONC** as the primary configuration format.
+TypeRP Framework uses **JSONC** as the primary configuration format.
 
 ### 16.2 Primary parser
 
@@ -559,25 +576,25 @@ The primary source of shared framework types and contracts must be:
 Rules:
 
 - repeated types across runtime resources must be moved into `packages/contracts`
-- shared framework contracts, DTOs, payloads, public cross-module types, and validation boundaries must live in `packages/contracts`
+- shared framework contracts, DTOs, payloads, public cross-module types, and validation boundaries
+  must live in `packages/contracts`
 - module-local internal types may remain inside the module if they are not reused elsewhere
 - avoid duplicating shared type definitions across resources and packages
 
-`packages/contracts` must not become a broad god-package.
-It must be structured by domain and subpath exports, for example:
+`packages/contracts` must not become a broad god-package. It must be structured by domain and
+subpath exports, for example:
 
 - `@typerp/contracts/core`
 - `@typerp/contracts/identity`
 - `@typerp/contracts/simple-job`
 
-Do not create one giant barrel reexporting everything.
-Use granular exports and imports.
+Do not create one giant barrel reexporting everything. Use granular exports and imports.
 
 ---
 
 ## 18. Zod 4 Usage and Strict Tree-Shaking Rules
 
-Zod 4 is the only validation library used by TRP Framework.
+Zod 4 is the only validation library used by TypeRP Framework.
 
 However, Zod runtime code must not be pulled unnecessarily into every runtime resource.
 
@@ -585,7 +602,8 @@ Rules:
 
 - only import Zod schemas in places that truly require runtime validation
 - when only types are needed, use `import type`
-- schemas and types should be split where appropriate so runtime consumers do not pull Zod unnecessarily
+- schemas and types should be split where appropriate so runtime consumers do not pull Zod
+  unnecessarily
 - `packages/contracts` must be designed for tree-shaking friendliness
 - avoid broad barrel exports that force unnecessary runtime imports
 
@@ -603,17 +621,20 @@ Build requirements:
 - bundle analysis must be possible through esbuild metafile or equivalent
 - transitive dependency growth is an architectural concern and must be monitored
 
-Do not accept passive growth where every runtime resource ends up carrying unnecessary validation runtime.
+Do not accept passive growth where every runtime resource ends up carrying unnecessary validation
+runtime.
 
 ---
 
 ## 19. Runtime Infrastructure Ownership
 
-TRP Framework must avoid duplicating heavy infrastructure initialization across runtime resources.
+TypeRP Framework must avoid duplicating heavy infrastructure initialization across runtime
+resources.
 
 Rules:
 
-- `packages/database` is an internal implementation package, not a package that every runtime resource should initialize directly
+- `packages/database` is an internal implementation package, not a package that every runtime
+  resource should initialize directly
 - `packages/database` may expose:
   - Drizzle schema
   - query helpers
@@ -655,27 +676,29 @@ This rule exists to avoid:
 ### 20.1 Packages vs owners
 
 - `packages/database` is for schema, helpers, types, and DB implementation support
-- `packages/database` is not the place where every runtime resource gets a live `db` singleton by default
+- `packages/database` is not the place where every runtime resource gets a live `db` singleton by
+  default
 
 ### 20.2 Runtime behavior
 
 Runtime resources should not do this by default:
 
 ```ts
-import { db } from '@typerp/database';
+import { db } from "@typerp/database";
 ```
 
 if that implies direct independent runtime initialization in many resources.
 
 ### 20.3 Kernel-owned access
 
-Heavy runtime services must be owned by `typerp-core-kernel` and accessed through public runtime APIs or kernel-owned service access patterns.
+Heavy runtime services must be owned by `typerp-core-kernel` and accessed through public runtime
+APIs or kernel-owned service access patterns.
 
 ---
 
 ## 21. Shared Bundled Code vs Runtime Public APIs
 
-TRP Framework must clearly distinguish between:
+TypeRP Framework must clearly distinguish between:
 
 - small bundled shared code
 - unique stateful/domain logic exposed through runtime APIs
@@ -684,7 +707,8 @@ Rules:
 
 - small, pure, side-effect-free shared code may be bundled into multiple runtime resources
 - unique, stateful, source-of-truth domain logic must live in a dedicated runtime resource
-- other runtime resources must consume that domain logic through public runtime APIs/exports instead of bundling/copying it
+- other runtime resources must consume that domain logic through public runtime APIs/exports instead
+  of bundling/copying it
 
 Use bundled shared code for:
 
@@ -719,14 +743,16 @@ Runtime resources must be self-contained and reliable in FiveM.
 
 Rules:
 
-- third-party runtime dependencies used by a runtime resource should be bundled into the final runtime artifact by default
+- third-party runtime dependencies used by a runtime resource should be bundled into the final
+  runtime artifact by default
 - Node built-ins may remain external for server-side runtime resources where appropriate
 - client runtime resources must not rely on runtime resolution of external npm packages
 - workspace libraries may be bundled into runtime resources as needed
 
 This means:
 
-- libraries such as `zod` and `jsonc-parser` should normally be bundled into final runtime resources if those resources actually use them
+- libraries such as `zod` and `jsonc-parser` should normally be bundled into final runtime resources
+  if those resources actually use them
 - do not rely on resource-local `node_modules` distribution as the primary runtime strategy
 - do not externalize third-party dependencies casually in runtime builds
 
@@ -775,8 +801,7 @@ The kernel must eventually support:
 - future-friendly lifecycle hooks
 - public runtime API/export direction
 
-Do not overbuild the kernel early.
-It should be small, real, and extensible.
+Do not overbuild the kernel early. It should be small, real, and extensible.
 
 ---
 
@@ -795,11 +820,13 @@ Examples:
 
 ### 25.2 Third-party extensibility
 
-Third-party authors must eventually be able to create their own TRP-compatible modules/plugins without modifying kernel internals.
+Third-party authors must eventually be able to create their own TRP-compatible modules/plugins
+without modifying kernel internals.
 
 ### 25.3 SDK direction
 
-A developer-facing SDK package should eventually exist to make module authoring easier, but must not become a fake abstraction detached from runtime reality.
+A developer-facing SDK package should eventually exist to make module authoring easier, but must not
+become a fake abstraction detached from runtime reality.
 
 ---
 
@@ -822,16 +849,15 @@ as applicable.
 
 ### 26.3 Internal modularization
 
-Source code inside a resource may be modular and split into many internal files and folders.
-The builder is responsible for collapsing those entry trees into final bundled runtime artifacts.
+Source code inside a resource may be modular and split into many internal files and folders. The
+builder is responsible for collapsing those entry trees into final bundled runtime artifacts.
 
 Do not require one giant source file per context.
 
 ### 26.4 No ghost resources
 
-Do not emit placeholder runtime resources.
-Do not emit empty runtime resources.
-Do not emit workspace packages as resources.
+Do not emit placeholder runtime resources. Do not emit empty runtime resources. Do not emit
+workspace packages as resources.
 
 ---
 
@@ -845,14 +871,13 @@ The runtime build must validate:
 - build output structure matches runtime expectations
 - bundling strategy does not accidentally leave invalid runtime dependencies unresolved
 
-Bundle analysis must be possible.
-Runtime output correctness is an architectural requirement.
+Bundle analysis must be possible. Runtime output correctness is an architectural requirement.
 
 ---
 
 ## 28. i18n / Localization
 
-TRP Framework must be internationalization-ready from the first version.
+TypeRP Framework must be internationalization-ready from the first version.
 
 Requirements:
 
@@ -894,10 +919,10 @@ Do not build large NUI systems before the framework base is ready.
 
 ## 30. ESX / QBCore Compatibility Direction
 
-TRP Framework must eventually support compatibility layers for legacy Lua ecosystems.
+TypeRP Framework must eventually support compatibility layers for legacy Lua ecosystems.
 
-This compatibility must be explicit and modular.
-It must not become scattered hacks inside the kernel.
+This compatibility must be explicit and modular. It must not become scattered hacks inside the
+kernel.
 
 Future compatibility resources may include:
 
@@ -924,8 +949,8 @@ The repository must support validation commands such as:
 - `dev:watch`
 - `clean`
 
-Root-level tasks must exist.
-Work already implemented must continue to lint, typecheck, and build correctly.
+Root-level tasks must exist. Work already implemented must continue to lint, typecheck, and build
+correctly.
 
 ---
 

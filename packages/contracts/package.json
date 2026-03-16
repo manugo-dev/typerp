@@ -1,26 +1,26 @@
 {
-  "name": "@typerp/contracts",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "src/index.ts",
-  "sideEffects": false,
-  "exports": {
-    ".": "./src/index.ts",
-    "./base": "./src/base/index.ts",
-    "./base/types": "./src/base/types.ts",
-    "./base/schemas": "./src/base/schemas.ts",
-    "./identity": "./src/identity/index.ts",
-    "./identity/types": "./src/identity/types.ts",
-    "./identity/schemas": "./src/identity/schemas.ts",
-    "./identity/events": "./src/identity/events.ts"
-  },
-  "dependencies": {
-    "zod": "next"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc -b"
-  }
+	"name": "@typerp/contracts",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"sideEffects": false,
+	"exports": {
+		"./base/types": "./src/base/types.d.ts",
+		"./base/schemas": "./src/base/schemas.ts",
+		"./kernel/types": "./src/kernel/types.d.ts",
+		"./identity/types": "./src/identity/types.d.ts",
+		"./identity/schemas": "./src/identity/schemas.ts",
+		"./identity/events": "./src/identity/events.ts"
+	},
+	"dependencies": {
+		"@typerp/database": "workspace:*",
+		"@typerp/redis": "workspace:*",
+		"zod": "next"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc -b"
+	}
 }

@@ -1,9 +1,10 @@
-# TRP Framework - SDK
+# TypeRP Framework - SDK
 
-This package provides the **public SDK integration helpers** for developers building modules and plugins for the TRP Framework.
+This package provides the **public SDK integration helpers** for developers building modules and
+plugins for the TypeRP Framework.
 
-It exposes core functions like `createModule()` and module lifecycle interfaces.
-Code in this package establishes a stable interface boundary for server owners.
+It exposes core functions like `createModule()` and module lifecycle interfaces. Code in this
+package establishes a stable interface boundary for server owners.
 
 **Rules for this package:**
 

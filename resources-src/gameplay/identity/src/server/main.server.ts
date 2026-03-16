@@ -1,11 +1,12 @@
 import { getConfig } from "@typerp/config";
 import type { CharacterCreate } from "@typerp/contracts/identity/types";
 
+import { DrizzleIdentityRepository } from "./repository.server";
 import { IdentityService } from "./service.server";
 
 const IDENTITY_RESOURCE_NAME = "identity";
 
-const kernel = globalThis.exports["core-kernel"];
+const kernel = globalThis.exports["typerp-core-kernel"];
 
 const config = getConfig();
 
@@ -15,11 +16,13 @@ if (!kernel) {
 	);
 }
 
-const identityService = new IdentityService(kernel.getInfrastructureServices());
+const infrastructure = kernel.getInfrastructureServices();
+const identityRepository = new DrizzleIdentityRepository(infrastructure.database);
+const identityService = new IdentityService(identityRepository);
 
 console.log(`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`);
 
-kernel.registerService("identity", {
+kernel.registerServerResource("gameplay-identity", {
 	name: IDENTITY_RESOURCE_NAME,
 	version: "0.1.0",
 });

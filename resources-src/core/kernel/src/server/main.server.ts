@@ -1,10 +1,8 @@
 import { getConfig } from "@typerp/config";
+import type { KernelInfrastructureServices } from "@typerp/contracts/kernel/types";
 
 import { KERNEL_RESOURCE_NAME } from "../shared/kernel.shared";
-import {
-	initializeInfrastructureServices,
-	type KernelInfrastructureServices,
-} from "./infrastructure.server";
+import { initializeInfrastructureServices } from "./infrastructure.server";
 import { ServerResourceRegistry } from "./registry.server";
 
 console.log(`[${KERNEL_RESOURCE_NAME}] Initializing server runtime...`);

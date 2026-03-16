@@ -93,6 +93,12 @@ importers:
 
   packages/contracts:
     dependencies:
+      '@typerp/database':
+        specifier: workspace:*
+        version: link:../database
+      '@typerp/redis':
+        specifier: workspace:*
+        version: link:../redis
       zod:
         specifier: next
         version: 3.25.0-beta.20250519T094321
@@ -172,6 +178,9 @@ importers:
       '@typerp/core-kernel':
         specifier: workspace:*
         version: link:../../core/kernel
+      '@typerp/database':
+        specifier: workspace:*
+        version: link:../../../packages/database
 
   resources-src/gameplay/simple-job:
     dependencies:

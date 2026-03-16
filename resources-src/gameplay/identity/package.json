@@ -1,24 +1,25 @@
 {
-  "name": "@typerp/identity",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "src/server/main.server.ts",
-  "exports": {
-    "./server": "./src/server/exports.ts"
-  },
-  "dependencies": {
-    "@typerp/config": "workspace:*",
-    "@typerp/contracts": "workspace:*",
-    "@typerp/core-kernel": "workspace:*"
-  },
-  "fxmanifest": {
-    "dependencies": [
-      "core-kernel"
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
-  }
+	"name": "@typerp/identity",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "src/server/main.server.ts",
+	"exports": {
+		"./server": "./src/server/exports.ts"
+	},
+	"dependencies": {
+		"@typerp/config": "workspace:*",
+		"@typerp/contracts": "workspace:*",
+		"@typerp/database": "workspace:*",
+		"@typerp/core-kernel": "workspace:*"
+	},
+	"fxmanifest": {
+		"dependencies": [
+			"typerp-core-kernel"
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit"
+	}
 }
