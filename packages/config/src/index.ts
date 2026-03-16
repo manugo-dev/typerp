@@ -1,4 +1,5 @@
 import { parse as parseJsonc } from "jsonc-parser";
+import type { ParseError } from "jsonc-parser";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
@@ -30,7 +31,7 @@ function findConfigFile(startDirectory: string): string | null {
 
 function readJsoncFile(filePath: string): Record<string, unknown> {
 	const raw = fs.readFileSync(filePath, "utf8");
-	const errors: import("jsonc-parser").ParseError[] = [];
+	const errors: ParseError[] = [];
 	const parsed = parseJsonc(raw, errors, { allowTrailingComma: true });
 	if (errors.length > 0) {
 		throw new Error(
