@@ -3,8 +3,8 @@ import { IdentityServerExports } from "../resources-src/gameplay/identity/src/se
 
 declare global {
 	interface ServerExports {
-		"typerp-gameplay-identity": IdentityServerExports;
-		"typerp-core-kernel": KernelServerExports;
+		"typerp-gameplay-identity"?: IdentityServerExports;
+		"typerp-core-kernel"?: KernelServerExports;
 	}
 
 	type ServerExportKeys = {

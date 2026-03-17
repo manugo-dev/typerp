@@ -6,9 +6,13 @@
 	"main": "src/index.ts",
 	"sideEffects": false,
 	"exports": {
+		"./config/types": "./src/config/types.d.ts",
+		"./config/schemas": "./src/config/schemas.ts",
 		"./base/types": "./src/base/types.d.ts",
 		"./base/schemas": "./src/base/schemas.ts",
+		"./kernel/locales": "./src/kernel/locales.d.ts",
 		"./kernel/types": "./src/kernel/types.d.ts",
+		"./kernel/exports": "./src/kernel/exports.d.ts",
 		"./identity/types": "./src/identity/types.d.ts",
 		"./identity/schemas": "./src/identity/schemas.ts",
 		"./identity/events": "./src/identity/events.ts"

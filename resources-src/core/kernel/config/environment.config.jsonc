@@ -1,0 +1,4 @@
+{
+	"databaseUrl": "postgres://postgres:408UjsaOYHD17fOIRiBiM98Eoz49xZGm7tEgd5bvKLYNNgHDa1c8290weNomISTf@100.64.0.16:5432/postgres",
+	"redisUrl": "redis://default:yr5U2KYkjHBc72abvGQjf9TvaApe4MknFO4N0vY2UwmHa8A4Pq6rR28tkz2MaybO@100.64.0.16:5433/0",
+}

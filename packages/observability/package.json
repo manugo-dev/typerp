@@ -5,7 +5,6 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@typerp/config": "workspace:*",
     "pino": "^10.3.1"
   },
   "devDependencies": {

@@ -300,7 +300,7 @@ Rules:
 
 A custom solution is justified only if:
 
-- the problem is highly specific to FiveM/TRP
+- the problem is highly specific to FiveM/TypeRP
 - the chosen library/tool cannot support the needed use case
 - performance constraints make the library unsuitable
 - a stable framework-specific public boundary is required
@@ -820,7 +820,7 @@ Examples:
 
 ### 25.2 Third-party extensibility
 
-Third-party authors must eventually be able to create their own TRP-compatible modules/plugins
+Third-party authors must eventually be able to create their own TypeRP-compatible modules/plugins
 without modifying kernel internals.
 
 ### 25.3 SDK direction

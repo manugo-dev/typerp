@@ -6,22 +6,56 @@ import { parse } from "jsonc-parser";
 
 const ROOT_DIR = path.resolve(process.cwd());
 const RESOURCES_SRC = path.join(ROOT_DIR, "resources-src");
-const FRAMEWORK_CONFIG_PATH = path.join(ROOT_DIR, "config", "framework.config.jsonc");
+const FRAMEWORK_CONFIG_PATH = path.join(
+	ROOT_DIR,
+	"resources-src",
+	"core",
+	"kernel",
+	"config",
+	"framework.config.jsonc",
+);
+const DEFAULT_FRAMEWORK_CONFIG = {
+	debugMode: false,
+	locale: "en",
+	logLevel: "info",
+	name: "typerp",
+	timezone: "UTC",
+	version: "0.0.0",
+};
+
+function parseJsonc(raw, sourceLabel) {
+	const errors = [];
+	const parsed = parse(raw, errors, { allowTrailingComma: true });
+	if (errors.length > 0) {
+		const details = errors.map((error) => `offset=${error.offset}, code=${error.error}`).join("; ");
+		throw new Error(`[ERROR] Failed to parse JSONC at ${sourceLabel}. ${details}`);
+	}
+	return parsed;
+}
+
+function readJsoncFile(filePath) {
+	const raw = fs.readFileSync(filePath, "utf8");
+	return parseJsonc(raw, filePath);
+}
 
 function getFrameworkConfig() {
-	if (fs.existsSync(FRAMEWORK_CONFIG_PATH)) {
-		try {
-			const content = fs.readFileSync(FRAMEWORK_CONFIG_PATH, "utf8");
-			return parse(content);
-		} catch (error) {
-			console.error("[ERROR] Failed to parse framework.config.jsonc", error);
-		}
+	if (!fs.existsSync(FRAMEWORK_CONFIG_PATH)) {
+		return DEFAULT_FRAMEWORK_CONFIG;
 	}
-	return { name: "framework" };
+
+	const parsed = readJsoncFile(FRAMEWORK_CONFIG_PATH);
+	if (!parsed || typeof parsed !== "object") {
+		throw new Error("[ERROR] framework.config.jsonc must contain a JSON object.");
+	}
+
+	return {
+		...DEFAULT_FRAMEWORK_CONFIG,
+		...parsed,
+	};
 }
 
 const FRAMEWORK_CONFIG = getFrameworkConfig();
-const OUTPUT_DIR = path.join(ROOT_DIR, `../resources/[${FRAMEWORK_CONFIG.name ?? "framework"}]`);
+const OUTPUT_DIR = path.join(ROOT_DIR, `../resources/[${FRAMEWORK_CONFIG.name}]`);
 
 /**
  * Recursively find all resource directories that contain a package.json.
@@ -83,6 +117,60 @@ function findEntrypoint(contextDir, suffix) {
 	}
 
 	return null;
+}
+
+function listFilesRecursively(directoryPath) {
+	const files = [];
+	const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
+	for (const entry of entries) {
+		const absolutePath = path.join(directoryPath, entry.name);
+		if (entry.isDirectory()) {
+			files.push(...listFilesRecursively(absolutePath));
+			continue;
+		}
+		if (entry.isFile()) {
+			files.push(absolutePath);
+		}
+	}
+	return files;
+}
+
+function emitEditableJsonFiles(sourceDirectory, outputDirectory) {
+	if (!fs.existsSync(sourceDirectory)) {
+		return;
+	}
+
+	for (const sourceFilePath of listFilesRecursively(sourceDirectory)) {
+		const relativeSourcePath = path.relative(sourceDirectory, sourceFilePath);
+		const sourceExtension = path.extname(sourceFilePath);
+		if (sourceExtension !== ".jsonc" && sourceExtension !== ".json") {
+			continue;
+		}
+
+		const outputRelativePath =
+			sourceExtension === ".jsonc"
+				? relativeSourcePath.replace(/\.jsonc$/u, ".json")
+				: relativeSourcePath;
+		const outputFilePath = path.join(outputDirectory, outputRelativePath);
+		const outputParentDirectory = path.dirname(outputFilePath);
+		fs.mkdirSync(outputParentDirectory, { recursive: true });
+
+		if (sourceExtension === ".jsonc") {
+			const parsed = readJsoncFile(sourceFilePath);
+			const serialized = `${JSON.stringify(parsed, null, 2)}\n`;
+			fs.writeFileSync(outputFilePath, serialized, "utf8");
+			continue;
+		}
+
+		fs.copyFileSync(sourceFilePath, outputFilePath);
+	}
+}
+
+function emitResourceEditableAssets(sourcePath, outDir) {
+	const configSourceDir = path.join(sourcePath, "config");
+	const localesSourceDir = path.join(sourcePath, "locales");
+	emitEditableJsonFiles(configSourceDir, path.join(outDir, "config"));
+	emitEditableJsonFiles(localesSourceDir, path.join(outDir, "locales"));
 }
 
 /**
@@ -184,6 +272,9 @@ async function buildResource(sourcePath) {
 			});
 			buildManifest.client = true;
 		}
+
+		// 3. Emit editable JSON assets (config/locales)
+		emitResourceEditableAssets(sourcePath, outDir);
 
 		// 3. Generate Manifest
 		generateManifest(outDir, buildManifest);

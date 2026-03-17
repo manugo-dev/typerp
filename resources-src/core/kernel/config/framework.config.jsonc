@@ -4,6 +4,5 @@
 	"locale": "en",
 	"timezone": "UTC",
 	"debugMode": false,
-	// Logging level: "error" | "warn" | "info" | "debug"
 	"logLevel": "info",
 }

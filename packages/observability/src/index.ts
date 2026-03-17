@@ -1,16 +1,28 @@
 import pino from 'pino';
-import { getConfig } from '@typerp/config';
 
-let sharedLogger: pino.Logger;
+let sharedLogger: pino.Logger | undefined;
+
+export interface LoggerBootstrapOptions {
+	readonly debugMode?: boolean;
+	readonly level?: 'error' | 'warn' | 'info' | 'debug';
+	readonly name?: string;
+}
+
+let bootstrapOptions: LoggerBootstrapOptions | null = null;
+
+export function initializeLogger(options: LoggerBootstrapOptions = {}): void {
+	bootstrapOptions = options;
+	sharedLogger = undefined;
+}
 
 export function getLogger(name: string = 'typerp'): pino.Logger {
   if (!sharedLogger) {
-    const config = getConfig();
+    const resolvedOptions = bootstrapOptions ?? {};
     const options: pino.LoggerOptions = {
-      name,
-      level: config.debugMode ? 'debug' : config.logLevel,
+      name: resolvedOptions.name ?? name,
+      level: resolvedOptions.debugMode ? 'debug' : (resolvedOptions.level ?? 'info'),
     };
-    if (config.debugMode) {
+    if (resolvedOptions.debugMode) {
       options.transport = {
         target: 'pino-pretty',
         options: { colorize: true },

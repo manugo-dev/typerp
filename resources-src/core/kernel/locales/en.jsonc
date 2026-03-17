@@ -1,0 +1,6 @@
+{
+	"kernel": {
+		"boot.ready": "Kernel runtime is ready.",
+		"resource.registered": "Resource {name} registered."
+	}
+}

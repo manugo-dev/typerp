@@ -1,15 +1,17 @@
-import type { KernelDatabaseServices } from "@typerp/contracts/kernel/types";
 import { createDatabaseClient, eq, schema } from "@typerp/database";
+import { environmentConfig } from "./config.server";
+import { getRedisConnection } from "@typerp/redis";
+import { KernelDatabase, KernelRedis } from "@typerp/contracts/kernel/types";
 
-let cachedDatabaseServices: KernelDatabaseServices | null = null;
+let cachedDatabaseServices: KernelDatabase | null = null;
 
-export function initializeKernelDatabaseServices(): KernelDatabaseServices {
+export function initializeDatabase(): KernelDatabase {
 	if (cachedDatabaseServices) {
 		return cachedDatabaseServices;
 	}
 
 	cachedDatabaseServices = {
-		db: createDatabaseClient(),
+		db: createDatabaseClient(environmentConfig.databaseUrl),
 		eq,
 		schema,
 	};

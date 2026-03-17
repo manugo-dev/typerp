@@ -11,8 +11,8 @@
 		"./schema/kernel": "./src/schema/kernel.ts"
 	},
 	"dependencies": {
-		"@typerp/config": "workspace:*",
 		"drizzle-orm": "^0.45.1",
+		"jsonc-parser": "^3.3.1",
 		"postgres": "^3.4.8"
 	},
 	"devDependencies": {
@@ -21,6 +21,7 @@
 	"scripts": {
 		"lint": "eslint .",
 		"typecheck": "tsc --noEmit",
-		"build": "tsc -b"
+		"build": "tsc -b",
+		"db:push": "drizzle-kit push"
 	}
 }

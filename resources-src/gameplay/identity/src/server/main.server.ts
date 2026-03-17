@@ -1,14 +1,10 @@
-import { getConfig } from "@typerp/config";
-import type { CharacterCreate } from "@typerp/contracts/identity/types";
-
-import { DrizzleIdentityRepository } from "./repository.server";
-import { IdentityService } from "./service.server";
+import { loadIdentityConfig } from "./config.server";
+import { loadIdentityLocales, tIdentity } from "./locales.server";
 
 const IDENTITY_RESOURCE_NAME = "identity";
+const currentResourceName = GetCurrentResourceName();
 
 const kernel = globalThis.exports["typerp-core-kernel"];
-
-const config = getConfig();
 
 if (!kernel) {
 	throw new Error(
@@ -16,22 +12,27 @@ if (!kernel) {
 	);
 }
 
-const infrastructure = kernel.getInfrastructureServices();
-const identityRepository = new DrizzleIdentityRepository(infrastructure.database);
-const identityService = new IdentityService(identityRepository);
+// const frameworkConfig = kernel.getFrameworkConfig();
+const identityConfig = loadIdentityConfig(currentResourceName);
+loadIdentityLocales(currentResourceName, kernel.getGlobalLocaleSnapshot());
 
-console.log(`[${IDENTITY_RESOURCE_NAME}] Initializing module... locale=${config.locale}`);
+// const identityRepository = new DrizzleIdentityRepository(kernel.getDatabase());
+// const identityService = new IdentityService(identityRepository);
+
+console.log(
+	`[${identityConfig.resourceLogLabel}] ${tIdentity("boot.starting")} locale=${frameworkConfig.locale}, maxCharacters=${identityConfig.maxCharactersPerLicense}`,
+);
 
 kernel.registerServerResource("gameplay-identity", {
 	name: IDENTITY_RESOURCE_NAME,
 	version: "0.1.0",
 });
 
-globalThis.exports("getCharacters", (licenseId: string) =>
-	identityService.getCharacters(licenseId),
-);
-globalThis.exports("createCharacter", (data: CharacterCreate) =>
-	identityService.createCharacter(data),
-);
+// globalThis.exports("getCharacters", (licenseId: string) =>
+// 	identityService.getCharacters(licenseId),
+// );
+// globalThis.exports("createCharacter", (data: CharacterCreate) =>
+// 	identityService.createCharacter(data),
+// );
 
-console.log(`[${IDENTITY_RESOURCE_NAME}] Server initialization complete.`);
+console.log(`[${identityConfig.resourceLogLabel}] ${tIdentity("boot.ready")}`);

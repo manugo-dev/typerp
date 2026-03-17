@@ -14,9 +14,10 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@typerp/config": "workspace:*",
 		"@typerp/contracts": "workspace:*",
 		"@typerp/database": "workspace:*",
-		"@typerp/redis": "workspace:*"
+		"@typerp/i18n": "workspace:*",
+		"@typerp/redis": "workspace:*",
+		"zod": "next"
 	}
 }

@@ -5,7 +5,7 @@ Workspace libraries live inside `packages/` and contain code intended to be cons
 ## Base Packages
 
 - `@typerp/contracts`: The single source of truth for shared contracts/types with domain subpaths such as `@typerp/contracts/identity/types` and `@typerp/contracts/identity/schemas`.
-- `@typerp/config`: JSONC-first config loading via `jsonc-parser`, validated with Zod 4, with environment variables limited to infrastructure overrides.
+- `@typerp/config`: JSONC + Zod config utilities intended for tooling/internal workflows; runtime resources should consume global config through kernel exports instead of direct package imports.
 - `@typerp/shared`: Pure helpers and domain-agnostic generic functions that can safely run anywhere.
 
 ## Infrastructure Foundations

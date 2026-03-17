@@ -1,0 +1,6 @@
+{
+	"kernel": {
+		"boot.ready": "El runtime del kernel esta listo.",
+		"resource.registered": "Recurso {name} registrado."
+	}
+}

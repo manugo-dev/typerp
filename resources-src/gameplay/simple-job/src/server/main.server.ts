@@ -1,6 +1,8 @@
-import { getConfig } from "@typerp/config";
+import type { KernelServerExports } from "@typerp/contracts/kernel/exports";
 import type { Character } from "@typerp/contracts/identity/types";
 
+import { loadJobConfig } from "./config.server";
+import { loadJobLocales, tJob } from "./locales.server";
 import {
 	JOB_RESOURCE_NAME,
 	type JobAssignment,
@@ -8,7 +10,15 @@ import {
 	type JobState,
 } from "../shared/job.shared";
 
-const config = getConfig();
+const currentResourceName = GetCurrentResourceName();
+const kernel = globalThis.exports["typerp-core-kernel"] as KernelServerExports | undefined;
+if (!kernel) {
+	throw new Error("[job-simple] Kernel exports not found.");
+}
+
+const frameworkConfig = kernel.getFrameworkConfig();
+const jobConfig = loadJobConfig(currentResourceName);
+loadJobLocales(currentResourceName, kernel.getGlobalLocaleSnapshot());
 
 const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [
 	{
@@ -30,6 +40,10 @@ const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [
 		reward: 150,
 	},
 ];
+const rewardMultiplier = jobConfig.startingRewardMultiplier;
+for (const template of JOB_TEMPLATES) {
+	template.reward = Math.round(template.reward * rewardMultiplier);
+}
 
 const activeJobs = new Map<number, { assignment: JobAssignment; state: JobState }>();
 let jobCounter = 0;
@@ -57,7 +71,7 @@ onNet(JobEvents.JOB_REQUEST, async () => {
 	const characters = await getPlayerIdentity(src);
 	if (!characters || characters.length === 0) {
 		emitNet(JobEvents.JOB_RESULT, src, {
-			message: "No character found. Create a character first.",
+			message: tJob("error.noCharacter"),
 			success: false,
 		});
 		return;
@@ -65,7 +79,7 @@ onNet(JobEvents.JOB_REQUEST, async () => {
 
 	if (activeJobs.has(src)) {
 		emitNet(JobEvents.JOB_RESULT, src, {
-			message: "You already have an active job.",
+			message: tJob("error.alreadyActive"),
 			success: false,
 		});
 		return;
@@ -92,7 +106,7 @@ onNet(JobEvents.JOB_DELIVER, () => {
 
 	if (!entry || entry.state !== "active") {
 		emitNet(JobEvents.JOB_RESULT, src, {
-			message: "No active job to deliver.",
+			message: tJob("error.noActiveJob"),
 			success: false,
 		});
 		return;
@@ -102,7 +116,7 @@ onNet(JobEvents.JOB_DELIVER, () => {
 	activeJobs.delete(src);
 
 	emitNet(JobEvents.JOB_RESULT, src, {
-		message: `Delivery complete! Earned $${entry.assignment.reward}.`,
+		message: tJob("job.completed", { reward: `$${entry.assignment.reward}` }),
 		reward: entry.assignment.reward,
 		success: true,
 	});
@@ -118,11 +132,10 @@ on("playerDropped", () => {
 });
 
 console.log(`[${JOB_RESOURCE_NAME}] Initializing simple job module...`);
-console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${config.locale}`);
+console.log(`[${JOB_RESOURCE_NAME}] ${tJob("boot.starting")}`);
+console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${frameworkConfig.locale}`);
 
-const kernel = globalThis.exports["typerp-core-kernel"];
-
-kernel?.registerServerResource("gameplay-simple-job", {
+kernel.registerServerResource("gameplay-simple-job", {
 	name: JOB_RESOURCE_NAME,
 	version: "0.1.0",
 });
@@ -132,4 +145,4 @@ globalThis.exports("getActiveJob", (source: number) => {
 	return entry ? entry.assignment : null;
 });
 
-console.log(`[${JOB_RESOURCE_NAME}] Server initialization complete.`);
+console.log(`[${JOB_RESOURCE_NAME}] ${tJob("boot.ready")}`);

@@ -1,88 +1,109 @@
-export type LocaleData = Record<string, string>;
+export type LocaleCatalog = Record<string, Record<string, string>>;
+export type LocaleParams = Record<string, number | string>;
 
-export class I18nService {
-	private activeLocale: string;
-	private fallbackLocale: string = "en";
-	private dictionaries: Map<string, LocaleData> = new Map();
+export interface LocaleSnapshot {
+	readonly activeLocale: string;
+	readonly fallbackLocale: string;
+	readonly activeCatalog: LocaleCatalog;
+	readonly fallbackCatalog: LocaleCatalog;
+}
 
-	constructor(activeLocale: string = "en") {
-		this.activeLocale = activeLocale;
+export interface LocaleTranslator {
+	readonly activeLocale: string;
+	readonly fallbackLocale: string;
+	t: (namespace: string, key: string, params?: LocaleParams) => string;
+}
+
+export interface LocaleTranslatorOptions {
+	readonly activeLocale: string;
+	readonly fallbackLocale?: string;
+	readonly globalActiveCatalog?: LocaleCatalog;
+	readonly globalFallbackCatalog?: LocaleCatalog;
+	readonly localActiveCatalog?: LocaleCatalog;
+	readonly localFallbackCatalog?: LocaleCatalog;
+}
+
+export interface ReadLocaleCatalogOptions {
+	readonly basePath?: string;
+	readonly sourceLabel?: string;
+}
+
+function mergeCatalogs(base: LocaleCatalog, override: LocaleCatalog): LocaleCatalog {
+	const merged: LocaleCatalog = { ...base };
+	for (const [namespace, namespaceValues] of Object.entries(override)) {
+		merged[namespace] = {
+			...(base[namespace] ?? {}),
+			...namespaceValues,
+		};
+	}
+	return merged;
+}
+
+function renderTemplate(template: string, params?: LocaleParams): string {
+	if (!params) {
+		return template;
 	}
 
-	/**
-	 * Loads or merges dictionary keys for a specific locale and namespace.
-	 * e.g., registerModuleLocale('es', 'typerp-core', { "welcome": "Bienvenido" })
-	 */
-	public registerLocale(locale: string, namespace: string, data: LocaleData) {
-		const key = `${locale}:${namespace}`;
-		const existing = this.dictionaries.get(key) || {};
-		this.dictionaries.set(key, { ...existing, ...data });
+	let rendered = template;
+	for (const [key, value] of Object.entries(params)) {
+		const encoded = String(value);
+		rendered = rendered.replaceAll(`{${key}}`, encoded);
+		rendered = rendered.replaceAll(`\${${key}}`, encoded);
 	}
+	return rendered;
+}
 
-	/**
-	 * Retrieves a translation key, optionally falling back to the fallback locale if missing.
-	 */
-	public t(
-		namespace: string,
-		key: string,
-		params?: Record<string, string | number>,
-	): string {
-		const primaryDict = this.dictionaries.get(
-			`${this.activeLocale}:${namespace}`,
-		);
-		let text = primaryDict?.[key];
+export function createTranslator(options: LocaleTranslatorOptions): LocaleTranslator {
+	const fallbackLocale = options.fallbackLocale ?? "en";
 
-		if (!text && this.activeLocale !== this.fallbackLocale) {
-			const fallbackDict = this.dictionaries.get(
-				`${this.fallbackLocale}:${namespace}`,
-			);
-			text = fallbackDict?.[key];
-		}
+	const globalActive = options.globalActiveCatalog ?? {};
+	const globalFallback = options.globalFallbackCatalog ?? {};
+	const localActive = options.localActiveCatalog ?? {};
+	const localFallback = options.localFallbackCatalog ?? {};
 
-		if (!text) {
+	const resolvedActive = mergeCatalogs(globalActive, localActive);
+	const resolvedFallback = mergeCatalogs(globalFallback, localFallback);
+
+	return {
+		activeLocale: options.activeLocale,
+		fallbackLocale,
+		t(namespace: string, key: string, params?: LocaleParams): string {
+			const activeMessage = resolvedActive[namespace]?.[key];
+			if (typeof activeMessage === "string") {
+				return renderTemplate(activeMessage, params);
+			}
+
+			const fallbackMessage = resolvedFallback[namespace]?.[key];
+			if (typeof fallbackMessage === "string") {
+				return renderTemplate(fallbackMessage, params);
+			}
+
 			return `[missing:${namespace}:${key}]`;
-		}
-
-		if (params) {
-			return this.interpolate(text, params);
-		}
-
-		return text;
-	}
-
-	private interpolate(
-		text: string,
-		params: Record<string, string | number>,
-	): string {
-		let result = text;
-		for (const [k, v] of Object.entries(params)) {
-			result = result.replaceAll(
-				new RegExp(String.raw`\{${k}\}`, "g"),
-				String(v),
-			);
-		}
-		return result;
-	}
+		},
+	};
 }
 
-// Global hook for ease of use (assumes the kernel initializes this once)
-let globalI18n: I18nService | null = null;
+export function readLocaleCatalog(
+	loadFile: (relativePath: string) => string | null,
+	locale: string,
+	options: ReadLocaleCatalogOptions = {},
+): LocaleCatalog {
+	const basePath = options.basePath ?? "locales";
+	const sourceLabel = options.sourceLabel ?? "locale";
+	const filePath = `${basePath}/${locale}.json`;
+	const raw = loadFile(filePath);
 
-export function initI18n(activeLocale: string) {
-	globalI18n = new I18nService(activeLocale);
-	return globalI18n;
-}
+	if (typeof raw !== "string") {
+		throw new Error(`[${sourceLabel}] Missing locale file: ${filePath}`);
+	}
 
-export function t(
-	namespace: string,
-	key: string,
-	params?: Record<string, string | number>,
-): string {
-	if (!globalI18n) {
-		console.warn(
-			"I18nService not initialized yet, returning fallback key format",
+	try {
+		return JSON.parse(raw) as LocaleCatalog;
+	} catch (error) {
+		throw new Error(
+			`[${sourceLabel}] Invalid locale JSON (${locale}): ${
+				error instanceof Error ? error.message : String(error)
+			}`,
 		);
-		return `[uninitialized:${namespace}:${key}]`;
 	}
-	return globalI18n.t(namespace, key, params);
 }

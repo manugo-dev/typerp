@@ -105,12 +105,12 @@ importers:
 
   packages/database:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../config
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(postgres@3.4.8)
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
       postgres:
         specifier: ^3.4.8
         version: 3.4.8
@@ -123,9 +123,6 @@ importers:
 
   packages/observability:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../config
       pino:
         specifier: ^10.3.1
         version: 10.3.1
@@ -136,9 +133,6 @@ importers:
 
   packages/redis:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../config
       bullmq:
         specifier: ^5.71.0
         version: 5.71.0
@@ -154,24 +148,24 @@ importers:
 
   resources-src/core/kernel:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../../../packages/config
       '@typerp/contracts':
         specifier: workspace:*
         version: link:../../../packages/contracts
       '@typerp/database':
         specifier: workspace:*
         version: link:../../../packages/database
+      '@typerp/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@typerp/redis':
         specifier: workspace:*
         version: link:../../../packages/redis
+      zod:
+        specifier: next
+        version: 3.25.0-beta.20250519T094321
 
   resources-src/gameplay/identity:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../../../packages/config
       '@typerp/contracts':
         specifier: workspace:*
         version: link:../../../packages/contracts
@@ -181,18 +175,21 @@ importers:
       '@typerp/database':
         specifier: workspace:*
         version: link:../../../packages/database
+      '@typerp/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
 
   resources-src/gameplay/simple-job:
     dependencies:
-      '@typerp/config':
-        specifier: workspace:*
-        version: link:../../../packages/config
       '@typerp/contracts':
         specifier: workspace:*
         version: link:../../../packages/contracts
       '@typerp/core-kernel':
         specifier: workspace:*
         version: link:../../core/kernel
+      '@typerp/i18n':
+        specifier: workspace:*
+        version: link:../../../packages/i18n
       '@typerp/identity':
         specifier: workspace:*
         version: link:../identity

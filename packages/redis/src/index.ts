@@ -10,24 +10,14 @@ import { Redis, type RedisOptions } from "ioredis";
 // Shared singleton connection
 let sharedRedisConnection: Redis | undefined;
 
-function getRedisUrl(): string {
-	const url = "";
-	if (!url) {
-		throw new Error(
-			"[Redis] REDIS_URL is not configured. Set REDIS_URL as an environment variable.",
-		);
-	}
-	return url;
-}
-
-export function getRedisConnection(): Redis {
+export function getRedisConnection(redisUrl: string): Redis {
 	if (!sharedRedisConnection) {
 		// BullMQ requires maxRetriesPerRequest: null — we disable the eslint rule for this one line
 		// because the ioredis types conflict with strictOptionalProperties under exactOptionalPropertyTypes.
 		const options: RedisOptions = {
 			maxRetriesPerRequest: null as unknown as number,
 		};
-		sharedRedisConnection = new Redis(getRedisUrl(), options);
+		sharedRedisConnection = new Redis(redisUrl, options);
 	}
 	return sharedRedisConnection;
 }

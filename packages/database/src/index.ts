@@ -10,25 +10,14 @@ function drizzleDatabase(sqlClient: ReturnType<typeof postgres>) {
 	return drizzle(sqlClient, { schema });
 }
 
-function resolveDatabaseUrl(): string {
-	const databaseUrl = process.env.DATABASE_URL;
 
-	if (!databaseUrl) {
-		throw new Error(
-			"[Database] DATABASE_URL is not configured. Set DATABASE_URL as an environment variable.",
-		);
-	}
-
-	return databaseUrl;
-}
-
-export function createDatabaseClient() {
+export function createDatabaseClient( databaseUrl: string ) {
 	if (cachedDatabase) {
 		return cachedDatabase;
 	}
 
 	if (!cachedSqlClient) {
-		cachedSqlClient = postgres(resolveDatabaseUrl(), { max: 10 });
+		cachedSqlClient = postgres(databaseUrl, { max: 10 });
 	}
 
 	cachedDatabase = drizzleDatabase(cachedSqlClient);
