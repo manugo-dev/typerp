@@ -1,0 +1,16 @@
+{
+	"name": "@typerp/redis",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"sideEffects": false,
+	"dependencies": {
+		"ioredis": "^5.10.0"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc -b"
+	}
+}

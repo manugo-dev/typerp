@@ -1,0 +1,45 @@
+{
+	"name": "typerp",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"lint": "nx run-many -t lint",
+		"format": "prettier --write .",
+		"typecheck": "nx run-many -t typecheck",
+		"test": "nx run-many -t test",
+		"build": "nx run-many -t build",
+		"build:runtime": "node tooling/scripts/build-runtime.mjs",
+		"dev": "nx run-many -t dev",
+		"dev:watch": "nx run-many -t dev:watch",
+		"clean": "nx run-many -t clean"
+	},
+	"devDependencies": {
+		"@changesets/cli": "^2.30.0",
+		"@citizenfx/client": "2.0.26803-1",
+		"@citizenfx/server": "2.0.26803-1",
+		"@eslint/js": "^9.39.4",
+		"@types/node": "^25.5.0",
+		"@vue/eslint-config-standard-with-typescript": "^9.2.0",
+		"@vue/eslint-config-typescript": "^14.7.0",
+		"eslint": "^9.39.4",
+		"eslint-config-prettier": "latest",
+		"eslint-plugin-import-x": "^4.16.2",
+		"eslint-plugin-jsonc": "^3.1.2",
+		"eslint-plugin-sonarjs": "^4.0.2",
+		"eslint-plugin-sort": "^4.0.0",
+		"eslint-plugin-unicorn": "^63.0.0",
+		"eslint-plugin-vue": "^10.8.0",
+		"globals": "^17.4.0",
+		"jsonc-parser": "^3.3.1",
+		"nx": "^22.5.4",
+		"prettier": "^3.8.1",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.57.0",
+		"vue-eslint-parser": "^10.4.0",
+		"zod": "^4.3.6"
+	},
+	"dependencies": {
+		"esbuild": "^0.27.4"
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"name": "typerp",
+	"version": "0.1.0",
+	"locale": "en",
+	"timezone": "UTC",
+	"debugMode": true,
+	"logLevel": "info",
+}

@@ -1,0 +1,10 @@
+{
+	"job": {
+		"boot.starting": "Inicializando modulo de trabajos simples...",
+		"boot.ready": "Inicializacion del servidor completada.",
+		"error.noCharacter": "No se encontro personaje. Crea un personaje primero.",
+		"error.alreadyActive": "Ya tienes un trabajo activo.",
+		"error.noActiveJob": "No tienes un trabajo activo para entregar.",
+		"job.completed": "Entrega completada. Ganaste ${reward}."
+	}
+}

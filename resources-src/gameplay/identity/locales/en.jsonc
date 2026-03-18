@@ -1,0 +1,6 @@
+{
+	"identity": {
+		"boot.starting": "Initializing module...",
+		"boot.ready": "Server initialization complete."
+	}
+}

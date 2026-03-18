@@ -1,0 +1,13 @@
+{
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.client.json" },
+		{ "path": "./tsconfig.server.json" },
+		{ "path": "./tsconfig.nui.json" },
+		{ "path": "./tsconfig.packages.json" },
+		{ "path": "./tsconfig.test.json" }
+	],
+	"compilerOptions": {
+		"composite": true
+	}
+}

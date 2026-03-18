@@ -1,0 +1,10 @@
+{
+	"job": {
+		"boot.starting": "Initializing simple job module...",
+		"boot.ready": "Server initialization complete.",
+		"error.noCharacter": "No character found. Create a character first.",
+		"error.alreadyActive": "You already have an active job.",
+		"error.noActiveJob": "No active job to deliver.",
+		"job.completed": "Delivery complete! Earned ${reward}."
+	}
+}
