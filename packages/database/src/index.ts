@@ -1,7 +1,10 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { eq } from "drizzle-orm";
+
 import * as schema from "./schema";
+
+export { eq } from "drizzle-orm";
+export * as schema from "./schema";
 
 let cachedSqlClient: ReturnType<typeof postgres> | null = null;
 let cachedDatabase: ReturnType<typeof drizzleDatabase> | null = null;
@@ -10,8 +13,7 @@ function drizzleDatabase(sqlClient: ReturnType<typeof postgres>) {
 	return drizzle(sqlClient, { schema });
 }
 
-
-export function createDatabaseClient( databaseUrl: string ) {
+export function createDatabaseClient(databaseUrl: string) {
 	if (cachedDatabase) {
 		return cachedDatabase;
 	}
@@ -33,6 +35,3 @@ export async function closeDatabaseClient(): Promise<void> {
 	cachedSqlClient = null;
 	cachedDatabase = null;
 }
-
-export { schema };
-export { eq };

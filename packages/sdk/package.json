@@ -1,20 +1,21 @@
 {
-  "name": "@typerp/sdk",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "sideEffects": false,
-  "main": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts"
-  },
-  "dependencies": {
-    "zod": "next"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc -b"
-  }
+	"name": "@typerp/sdk",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"sideEffects": false,
+	"main": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/*.ts"
+	},
+	"dependencies": {
+		"@typerp/contracts": "workspace:*",
+		"@typerp/i18n": "workspace:*"
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit",
+		"build": "tsc -b"
+	}
 }

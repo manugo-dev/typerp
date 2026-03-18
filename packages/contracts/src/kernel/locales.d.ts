@@ -6,8 +6,8 @@ export interface Language {
 }
 
 export interface GlobalLocaleSnapshot {
-	readonly activeLocale: string;
-	readonly fallbackLocale: string;
 	readonly activeCatalog: LocaleCatalog;
+	readonly activeLocale: string;
 	readonly fallbackCatalog: LocaleCatalog;
+	readonly fallbackLocale: string;
 }

@@ -1,6 +1,10 @@
-import { KernelRedis } from "@typerp/contracts/kernel/types";
 import { getRedisConnection } from "@typerp/redis";
+
 import { environmentConfig } from "./config.server";
+
+interface KernelRedis {
+	readonly connection: ReturnType<typeof getRedisConnection>;
+}
 
 let cachedRedisServices: KernelRedis | null = null;
 

@@ -2,10 +2,10 @@ export type LocaleCatalog = Record<string, Record<string, string>>;
 export type LocaleParams = Record<string, number | string>;
 
 export interface LocaleSnapshot {
-	readonly activeLocale: string;
-	readonly fallbackLocale: string;
 	readonly activeCatalog: LocaleCatalog;
+	readonly activeLocale: string;
 	readonly fallbackCatalog: LocaleCatalog;
+	readonly fallbackLocale: string;
 }
 
 export interface LocaleTranslator {
@@ -32,7 +32,7 @@ function mergeCatalogs(base: LocaleCatalog, override: LocaleCatalog): LocaleCata
 	const merged: LocaleCatalog = { ...base };
 	for (const [namespace, namespaceValues] of Object.entries(override)) {
 		merged[namespace] = {
-			...(base[namespace] ?? {}),
+			...base[namespace],
 			...namespaceValues,
 		};
 	}
@@ -94,7 +94,7 @@ export function readLocaleCatalog(
 	const raw = loadFile(filePath);
 
 	if (typeof raw !== "string") {
-		throw new Error(`[${sourceLabel}] Missing locale file: ${filePath}`);
+		throw new TypeError(`[${sourceLabel}] Missing locale file: ${filePath}`);
 	}
 
 	try {

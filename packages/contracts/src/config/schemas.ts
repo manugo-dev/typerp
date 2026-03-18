@@ -1,12 +1,12 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 
 export const FrameworkConfigSchema = z.object({
-	name: z.string().min(1),
-	version: z.string().min(1),
-	locale: z.string().min(2).default("en"),
-	timezone: z.string().min(1).default("UTC"),
 	debugMode: z.boolean().default(false),
+	locale: z.string().min(2).default("en"),
 	logLevel: z.enum(["error", "warn", "info", "debug"]).default("info"),
+	name: z.string().min(1),
+	timezone: z.string().min(1).default("UTC"),
+	version: z.string().min(1),
 });
 
 export const EnvironmentConfigSchema = z.object({

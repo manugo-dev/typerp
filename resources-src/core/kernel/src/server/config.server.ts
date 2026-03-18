@@ -1,5 +1,5 @@
+import { EnvironmentConfigSchema, FrameworkConfigSchema } from "@typerp/contracts/config/schemas";
 import type { EnvironmentConfig, FrameworkConfig } from "@typerp/contracts/config/types";
-import { FrameworkConfigSchema, EnvironmentConfigSchema } from "@typerp/contracts/config/schemas";
 
 const FRAMEWORK_CONFIG_FILE = "config/framework.config.json";
 const ENVIRONMENT_CONFIG_FILE = "config/environment.config.json";
@@ -10,7 +10,7 @@ let cachedEnvironmentConfig: EnvironmentConfig | null = null;
 function readResourceJson(resourceName: string, relativePath: string): unknown {
 	const raw = LoadResourceFile(resourceName, relativePath);
 	if (typeof raw !== "string") {
-		throw new Error(`[Kernel] Missing runtime JSON file: ${resourceName}/${relativePath}`);
+		throw new TypeError(`[Kernel] Missing runtime JSON file: ${resourceName}/${relativePath}`);
 	}
 
 	try {

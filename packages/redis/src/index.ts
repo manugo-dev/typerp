@@ -1,19 +1,12 @@
-/**
- * @typerp/redis — Redis connection helpers
- *
- * Context: SERVER only.
- * REDIS_URL must be provided as an environment variable override when running with
- * the JSONC-based config, since connection secrets are not stored in JSONC.
- */
 import { Redis, type RedisOptions } from "ioredis";
 
-// Shared singleton connection
+export { Redis, type RedisOptions } from "ioredis";
+
 let sharedRedisConnection: Redis | undefined;
 
 export function getRedisConnection(redisUrl: string): Redis {
 	if (!sharedRedisConnection) {
-		// BullMQ requires maxRetriesPerRequest: null — we disable the eslint rule for this one line
-		// because the ioredis types conflict with strictOptionalProperties under exactOptionalPropertyTypes.
+		// BullMQ requires maxRetriesPerRequest: null
 		const options: RedisOptions = {
 			maxRetriesPerRequest: null as unknown as number,
 		};
@@ -21,6 +14,3 @@ export function getRedisConnection(redisUrl: string): Redis {
 	}
 	return sharedRedisConnection;
 }
-
-export { Redis };
-export type { RedisOptions };

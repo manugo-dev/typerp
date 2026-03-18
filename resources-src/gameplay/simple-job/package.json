@@ -7,14 +7,11 @@
 	"main": "src/server/main.server.ts",
 	"dependencies": {
 		"@typerp/contracts": "workspace:*",
-		"@typerp/core-kernel": "workspace:*",
-		"@typerp/i18n": "workspace:*",
-		"@typerp/identity": "workspace:*"
+		"@typerp/sdk": "workspace:*"
 	},
 	"fxmanifest": {
 		"dependencies": [
-			"typerp-core-kernel",
-			"typerp-gameplay-identity"
+			"typerp-core-kernel"
 		]
 	},
 	"scripts": {

@@ -12,7 +12,7 @@ export function loadJobConfig(resourceName: string): JobConfig {
 
 	const raw = LoadResourceFile(resourceName, JOB_CONFIG_FILE);
 	if (typeof raw !== "string") {
-		throw new Error(`[job-simple] Missing config file: ${resourceName}/${JOB_CONFIG_FILE}`);
+		throw new TypeError(`[job-simple] Missing config file: ${resourceName}/${JOB_CONFIG_FILE}`);
 	}
 
 	let parsedJson: unknown;

@@ -1,8 +1,8 @@
 const IDENTITY_CONFIG_FILE = "config/identity.config.json";
 
 export interface IdentityConfig {
-	readonly resourceLogLabel: string;
 	readonly maxCharactersPerLicense: number;
+	readonly resourceLogLabel: string;
 }
 
 let cachedIdentityConfig: IdentityConfig | null = null;
@@ -14,7 +14,7 @@ export function loadIdentityConfig(resourceName: string): IdentityConfig {
 
 	const raw = LoadResourceFile(resourceName, IDENTITY_CONFIG_FILE);
 	if (typeof raw !== "string") {
-		throw new Error(`[identity] Missing config file: ${resourceName}/${IDENTITY_CONFIG_FILE}`);
+		throw new TypeError(`[identity] Missing config file: ${resourceName}/${IDENTITY_CONFIG_FILE}`);
 	}
 
 	let parsedJson: unknown;

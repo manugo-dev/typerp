@@ -12,8 +12,8 @@ export const Vector3Schema = z.object({
 });
 
 export const Vector4Schema = z.object({
+  w: z.number(),
   x: z.number(),
   y: z.number(),
   z: z.number(),
-  w: z.number(),
 });

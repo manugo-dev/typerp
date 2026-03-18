@@ -1,2 +1,2 @@
-export * from "./kernel";
 export * from "./identity";
+export * from "./kernel";

@@ -1,13 +1,11 @@
 import type { FrameworkConfig } from "../config/types";
-import type { GlobalLocaleSnapshot } from "./locales";
-import type { KernelDatabase, KernelInfrastructureServices, KernelRedis } from "./types";
+import type { GlobalLocaleSnapshot, Language } from "./locales";
 
 export interface KernelServerExports {
-	readonly getFrameworkConfig: () => FrameworkConfig;
 	readonly getActiveLanguage: () => string;
+	readonly getFrameworkConfig: () => FrameworkConfig;
 	readonly getGlobalLocaleSnapshot: () => GlobalLocaleSnapshot;
-	readonly getDatabase: () => KernelDatabase;
-	readonly getRedis: () => KernelRedis;
+	readonly getLanguage: () => Language;
 	readonly getManifests: () => { name: string; ready: boolean; version: string }[];
 	readonly getServerResource: (name: string) => unknown;
 	readonly registerServerResource: (name: string, service: unknown) => void;

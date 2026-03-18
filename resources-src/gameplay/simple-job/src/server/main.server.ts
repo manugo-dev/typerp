@@ -1,24 +1,19 @@
-import type { KernelServerExports } from "@typerp/contracts/kernel/exports";
 import type { Character } from "@typerp/contracts/identity/types";
+import { IdentityRpc } from "@typerp/contracts/identity/rpc";
+import { callRpc, getGlobalConfig, getKernelExports, initResourceLocales } from "@typerp/sdk";
 
-import { loadJobConfig } from "./config.server";
-import { loadJobLocales, tJob } from "./locales.server";
 import {
 	JOB_RESOURCE_NAME,
 	type JobAssignment,
 	JobEvents,
 	type JobState,
 } from "../shared/job.shared";
+import { loadJobConfig } from "./config.server";
 
 const currentResourceName = GetCurrentResourceName();
-const kernel = globalThis.exports["typerp-core-kernel"] as KernelServerExports | undefined;
-if (!kernel) {
-	throw new Error("[job-simple] Kernel exports not found.");
-}
-
-const frameworkConfig = kernel.getFrameworkConfig();
 const jobConfig = loadJobConfig(currentResourceName);
-loadJobLocales(currentResourceName, kernel.getGlobalLocaleSnapshot());
+const tJob = initResourceLocales(currentResourceName, "job");
+const frameworkConfig = getGlobalConfig();
 
 const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [
 	{
@@ -54,11 +49,8 @@ async function getPlayerIdentity(source: number): Promise<Character[] | null> {
 		const license = identifiers.find((id: string) => id.startsWith("license:"));
 		if (!license) throw new Error("License identifier not found for player");
 
-		const identity = globalThis.exports["typerp-gameplay-identity"];
-		if (!identity) throw new Error("Identity service not available");
-
-		const characters = await identity.getCharacters(license);
-		return characters as Character[];
+		const characters = await callRpc<Character[]>(IdentityRpc.GET_CHARACTERS, license);
+		return characters;
 	} catch (error) {
 		console.error(`[${JOB_RESOURCE_NAME}] Failed to query identity:`, error);
 		return null;
@@ -85,7 +77,7 @@ onNet(JobEvents.JOB_REQUEST, async () => {
 		return;
 	}
 
-	const template = JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)]!;
+	const template = JOB_TEMPLATES[Math.floor(Math.random() * JOB_TEMPLATES.length)]!; // eslint-disable-line sonarjs/pseudo-random -- gameplay randomness, not security
 	const assignment: JobAssignment = {
 		...template,
 		jobId: `job_${++jobCounter}`,
@@ -135,7 +127,7 @@ console.log(`[${JOB_RESOURCE_NAME}] Initializing simple job module...`);
 console.log(`[${JOB_RESOURCE_NAME}] ${tJob("boot.starting")}`);
 console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${frameworkConfig.locale}`);
 
-kernel.registerServerResource("gameplay-simple-job", {
+getKernelExports().registerServerResource("gameplay-simple-job", {
 	name: JOB_RESOURCE_NAME,
 	version: "0.1.0",
 });

@@ -114,7 +114,7 @@ export default defineConfigWithVueTs([
 	},
 	// NUI / Vue rules (Browser environment)
 	...pluginVue.configs["flat/essential"],
-	...vueTsConfigs.recommended,
+	vueTsConfigs.recommended,
 	{
 		files: ["**/nui/**/*.{ts,vue,js}"],
 		languageOptions: {

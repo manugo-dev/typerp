@@ -1,12 +1,12 @@
 import type { GlobalLocaleSnapshot, Language } from "@typerp/contracts/kernel/locales";
-import { createTranslator, readLocaleCatalog, type LocaleCatalog, type LocaleTranslator } from "@typerp/i18n";
+import { createTranslator, type LocaleCatalog, type LocaleTranslator, readLocaleCatalog } from "@typerp/i18n";
 
 import { frameworkConfig } from "./config.server";
 
 const DEFAULT_FALLBACK_LOCALE = "en";
 
 let activeLocale = frameworkConfig.locale ?? DEFAULT_FALLBACK_LOCALE;
-let fallbackLocale = DEFAULT_FALLBACK_LOCALE;
+const fallbackLocale = DEFAULT_FALLBACK_LOCALE;
 let activeCatalog: LocaleCatalog = {};
 let fallbackCatalog: LocaleCatalog = {};
 let translator: LocaleTranslator = createTranslator({
@@ -30,7 +30,7 @@ export function getActiveLanguage(): string {
 	return activeLocale;
 }
 
-export function getGlobalLocales(): GlobalLocaleSnapshot {
+export function getGlobalLocaleSnapshot(): GlobalLocaleSnapshot {
 	return {
 		activeCatalog,
 		activeLocale,
@@ -59,7 +59,7 @@ export function initializeGlobalLocales(): GlobalLocaleSnapshot {
 		globalFallbackCatalog: fallbackCatalog,
 	});
 
-	return getGlobalLocales();
+	return getGlobalLocaleSnapshot();
 }
 
 export function tGlobal(namespace: string, key: string, params?: Record<string, number | string>): string {

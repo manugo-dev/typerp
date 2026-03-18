@@ -1,25 +1,25 @@
-import { parse as parseJsonc } from "jsonc-parser";
-import * as path from "node:path";
 import { defineConfig } from "drizzle-kit";
+import { parse as parseJsonc } from "jsonc-parser";
 import * as fs from "node:fs";
+import * as path from "node:path";
 
-const config = parseJsonc(
+const environmentConfig = parseJsonc(
 	fs.readFileSync(
 		path.join(
 			path.resolve(process.cwd()),
-			"../../resources-src/core/kernel/config/framework.config.jsonc",
+			"../../resources-src/core/kernel/config/environment.config.jsonc",
 		),
 		"utf8",
 	),
 );
 
 export default defineConfig({
-	schema: "./src/schema/index.ts",
-	out: "./drizzle",
-	dialect: "postgresql",
 	dbCredentials: {
-		url: config.databaseUrl,
+		url: environmentConfig.databaseUrl,
 	},
-	verbose: true,
+	dialect: "postgresql",
+	out: "./drizzle",
+	schema: "./src/schema/index.ts",
 	strict: true,
+	verbose: true,
 });

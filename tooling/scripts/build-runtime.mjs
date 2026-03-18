@@ -232,7 +232,7 @@ async function buildResource(sourcePath) {
 
 		// 1. Build Server
 		if (hasServer) {
-			await esbuild.build({
+			const serverResult = await esbuild.build({
 				entryPoints: [srcServer],
 				outfile: path.join(distDir, "server.js"),
 				bundle: true,
@@ -250,11 +250,17 @@ async function buildResource(sourcePath) {
 				external: ["node:*"],
 			});
 			buildManifest.server = true;
+			if (serverResult.metafile) {
+				fs.writeFileSync(
+					path.join(distDir, "server.meta.json"),
+					JSON.stringify(serverResult.metafile),
+				);
+			}
 		}
 
 		// 2. Build Client
 		if (hasClient) {
-			await esbuild.build({
+			const clientResult = await esbuild.build({
 				entryPoints: [srcClient],
 				outfile: path.join(distDir, "client.js"),
 				bundle: true,
@@ -271,12 +277,18 @@ async function buildResource(sourcePath) {
 				plugins: [workspaceResolverPlugin],
 			});
 			buildManifest.client = true;
+			if (clientResult.metafile) {
+				fs.writeFileSync(
+					path.join(distDir, "client.meta.json"),
+					JSON.stringify(clientResult.metafile),
+				);
+			}
 		}
 
 		// 3. Emit editable JSON assets (config/locales)
 		emitResourceEditableAssets(sourcePath, outDir);
 
-		// 3. Generate Manifest
+		// 4. Generate Manifest
 		generateManifest(outDir, buildManifest);
 
 		console.log(`[SUCCESS] Built ${resourceName} -> ${outDir}`);

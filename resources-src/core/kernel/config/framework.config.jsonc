@@ -3,6 +3,6 @@
 	"version": "0.1.0",
 	"locale": "en",
 	"timezone": "UTC",
-	"debugMode": false,
+	"debugMode": true,
 	"logLevel": "info",
 }

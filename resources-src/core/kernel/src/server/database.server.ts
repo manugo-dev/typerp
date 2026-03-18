@@ -1,7 +1,12 @@
 import { createDatabaseClient, eq, schema } from "@typerp/database";
+
 import { environmentConfig } from "./config.server";
-import { getRedisConnection } from "@typerp/redis";
-import { KernelDatabase, KernelRedis } from "@typerp/contracts/kernel/types";
+
+interface KernelDatabase {
+	readonly db: ReturnType<typeof createDatabaseClient>;
+	readonly eq: typeof eq;
+	readonly schema: typeof schema;
+}
 
 let cachedDatabaseServices: KernelDatabase | null = null;
 

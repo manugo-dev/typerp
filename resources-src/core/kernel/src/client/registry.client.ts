@@ -1,5 +1,5 @@
 export class ClientResourceRegistry {
-	private resources = new Map<string, unknown>();
+	private readonly resources = new Map<string, unknown>();
 
 	public register(name: string, resource: unknown) {
 		this.resources.set(name, resource);
