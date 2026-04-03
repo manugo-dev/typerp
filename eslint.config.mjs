@@ -1,24 +1,18 @@
 import js from "@eslint/js";
-import {
-	defineConfigWithVueTs,
-	vueTsConfigs,
-} from "@vue/eslint-config-typescript";
+import { defineConfigWithVueTs, vueTsConfigs } from "@vue/eslint-config-typescript";
 import { globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
-import pluginVue from "eslint-plugin-vue";
 import { flatConfigs as importXConfig } from "eslint-plugin-import-x";
 import sonarjs from "eslint-plugin-sonarjs";
 import sort from "eslint-plugin-sort";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import pluginVue from "eslint-plugin-vue";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
 const defaultTsRules = {
 	// typescript-eslint rules
-	"@typescript-eslint/no-unused-vars": [
-		"warn",
-		{ argsIgnorePattern: "^_$|^err$" },
-	],
+	"@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_$|^err$" }],
 	// eslint-plugin-import-x rules
 	"import-x/newline-after-import": ["error", { count: 1 }],
 	"import-x/no-dynamic-require": "warn",
@@ -46,10 +40,8 @@ const defaultTsRules = {
 	"sort/string-unions": ["error", { caseSensitive: false, natural: true }],
 	"sort/type-properties": ["error", { caseSensitive: false, natural: true }],
 	// eslint-plugin-unicorn rules
-	"unicorn/filename-case": [
-		"error",
-		{ case: "kebabCase", ignore: [/^fxmanifest\.lua$/i] },
-	],
+	"unicorn/filename-case": ["error", { case: "kebabCase", ignore: [/^fxmanifest\.lua$/i] }],
+	"unicorn/import-style": ["error", { styles: { "node:path": false } }],
 	"unicorn/no-array-reduce": "off",
 	"unicorn/no-null": "off",
 	"unicorn/no-useless-undefined": ["error", { checkArguments: false }],
@@ -77,11 +69,10 @@ const defaultTsRules = {
 			},
 		},
 	],
-	"unicorn/import-style": ["error", { styles: { "node:path": false } }],
 };
 
 export default defineConfigWithVueTs([
-	globalIgnores(["**/dist/**", "**/node_modules/**", "coverage"]),
+	globalIgnores(["tooling/scripts/*.mjs", "**/dist/**", "**/node_modules/**", "coverage"]),
 	sonarjs.configs.recommended,
 	importXConfig.recommended,
 	importXConfig.typescript,

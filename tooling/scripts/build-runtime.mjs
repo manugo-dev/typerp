@@ -2,7 +2,6 @@
 import * as esbuild from "esbuild";
 import { parse } from "jsonc-parser";
 import * as fs from "node:fs";
-// eslint-disable-next-line unicorn/import-style
 import * as path from "node:path";
 
 const ROOT_DIR = path.resolve(process.cwd());
@@ -61,15 +60,15 @@ const OUTPUT_DIR = path.join(ROOT_DIR, `../resources/[${FRAMEWORK_CONFIG.name}]`
 /**
  * Recursively find all resource directories that contain a package.json.
  */
-function findResources(directory) {
+function findResources(dir) {
 	const results = [];
-	if (!fs.existsSync(directory)) return results;
+	if (!fs.existsSync(dir)) return results;
 
-	const entries = fs.readdirSync(directory, { withFileTypes: true });
+	const entries = fs.readdirSync(dir, { withFileTypes: true });
 	for (const entry of entries) {
 		if (!entry.isDirectory()) continue;
 		if (entry.name === "node_modules") continue;
-		const fullPath = path.join(directory, entry.name);
+		const fullPath = path.join(dir, entry.name);
 		const packagePath = path.join(fullPath, "package.json");
 		if (fs.existsSync(packagePath)) {
 			results.push(fullPath);
@@ -81,11 +80,11 @@ function findResources(directory) {
 	return results;
 }
 
-function findEntrypoint(contextDirectory, suffix) {
-	if (!fs.existsSync(contextDirectory)) return;
+function findEntrypoint(contextDir, suffix) {
+	if (!fs.existsSync(contextDir)) return null;
 
 	const candidates = [];
-	const stack = [contextDirectory];
+	const stack = [contextDir];
 	while (stack.length > 0) {
 		const current = stack.pop();
 		const entries = fs.readdirSync(current, { withFileTypes: true });
@@ -113,9 +112,11 @@ function findEntrypoint(contextDirectory, suffix) {
 
 	if (candidates.length > 1) {
 		throw new Error(
-			`Multiple entrypoints found in ${contextDirectory} for ${suffix}. Add main${suffix} to disambiguate.`,
+			`Multiple entrypoints found in ${contextDir} for ${suffix}. Add main${suffix} to disambiguate.`,
 		);
 	}
+
+	return null;
 }
 
 function listFilesRecursively(directoryPath) {
@@ -156,7 +157,7 @@ function emitEditableJsonFiles(sourceDirectory, outputDirectory) {
 
 		if (sourceExtension === ".jsonc") {
 			const parsed = readJsoncFile(sourceFilePath);
-			const serialized = `${JSON.stringify(parsed, undefined, 2)}\n`;
+			const serialized = `${JSON.stringify(parsed, null, 2)}\n`;
 			fs.writeFileSync(outputFilePath, serialized, "utf8");
 			continue;
 		}
@@ -165,11 +166,11 @@ function emitEditableJsonFiles(sourceDirectory, outputDirectory) {
 	}
 }
 
-function emitResourceEditableAssets(sourcePath, outputDirectory) {
-	const configurationSourceDirectory = path.join(sourcePath, "config");
-	const localesSourceDirectory = path.join(sourcePath, "locales");
-	emitEditableJsonFiles(configurationSourceDirectory, path.join(outputDirectory, "config"));
-	emitEditableJsonFiles(localesSourceDirectory, path.join(outputDirectory, "locales"));
+function emitResourceEditableAssets(sourcePath, outDir) {
+	const configSourceDir = path.join(sourcePath, "config");
+	const localesSourceDir = path.join(sourcePath, "locales");
+	emitEditableJsonFiles(configSourceDir, path.join(outDir, "config"));
+	emitEditableJsonFiles(localesSourceDir, path.join(outDir, "locales"));
 }
 
 /**
@@ -182,8 +183,8 @@ async function buildResource(sourcePath) {
 	if (!fs.existsSync(packagePath)) return;
 
 	const package_ = JSON.parse(fs.readFileSync(packagePath, "utf8"));
-	const relativePath = path.relative(RESOURCES_SRC, sourcePath);
-	const resourceName = `${FRAMEWORK_CONFIG.name}-${relativePath.split(path.sep).join("-")}`;
+	const relPath = path.relative(RESOURCES_SRC, sourcePath);
+	const resourceName = `${FRAMEWORK_CONFIG.name}-${relPath.split(path.sep).join("-")}`;
 
 	const sourceServer = findEntrypoint(path.join(sourcePath, "src", "server"), ".server.ts");
 	const sourceClient = findEntrypoint(path.join(sourcePath, "src", "client"), ".client.ts");
@@ -196,9 +197,9 @@ async function buildResource(sourcePath) {
 		return;
 	}
 
-	const outputDirectory = path.join(OUTPUT_DIR, resourceName);
-	const distributionDirectory = path.join(outputDirectory, "dist");
-	fs.mkdirSync(distributionDirectory, { recursive: true });
+	const outDir = path.join(OUTPUT_DIR, resourceName);
+	const distDir = path.join(outDir, "dist");
+	fs.mkdirSync(distDir, { recursive: true });
 
 	const buildManifest = {
 		client: false,
@@ -222,32 +223,31 @@ async function buildResource(sourcePath) {
 					if (fs.existsSync(entryPath)) {
 						return { path: entryPath };
 					}
+
+					// Not a workspace package — let esbuild handle it normally
+					return;
 				});
 			},
-		};
-
-		const buildConfig = {
-			bundle: true,
-			conditions: ["module", "import", "node", "default"],
-			external: ["node:*"],
-			format: "cjs",
-			mainFields: ["module", "main"],
-			metafile: true,
-			minifyIdentifiers: false,
-			minifySyntax: true,
-			minifyWhitespace: true,
-			platform: "node",
-			plugins: [workspaceResolverPlugin],
-			target: "node22",
-			treeShaking: true,
 		};
 
 		// 1. Build Server
 		if (hasServer) {
 			const serverResult = await esbuild.build({
+				bundle: true,
+				conditions: ["module", "import", "node", "default"],
 				entryPoints: [sourceServer],
+				external: ["node:*"],
+				format: "cjs",
+				mainFields: ["module", "main"],
+				metafile: true,
+				minifyIdentifiers: false,
+				minifySyntax: true,
+				minifyWhitespace: true,
 				outfile: path.join(distDir, "server.js"),
-				...buildConfig,
+				platform: "node",
+				plugins: [workspaceResolverPlugin],
+				target: "node22",
+				treeShaking: true,
 			});
 			buildManifest.server = true;
 			if (serverResult.metafile) {
@@ -261,9 +261,20 @@ async function buildResource(sourcePath) {
 		// 2. Build Client
 		if (hasClient) {
 			const clientResult = await esbuild.build({
+				bundle: true,
+				conditions: ["module", "import", "browser", "default"],
 				entryPoints: [sourceClient],
+				format: "cjs",
+				mainFields: ["module", "main"],
+				metafile: true,
+				minifyIdentifiers: false,
+				minifySyntax: true,
+				minifyWhitespace: true,
 				outfile: path.join(distDir, "client.js"),
-				...buildConfig,
+				platform: "browser",
+				plugins: [workspaceResolverPlugin],
+				target: "es2022",
+				treeShaking: true,
 			});
 			buildManifest.client = true;
 			if (clientResult.metafile) {
@@ -283,7 +294,6 @@ async function buildResource(sourcePath) {
 		console.log(`[SUCCESS] Built ${resourceName} -> ${outDir}`);
 	} catch (error) {
 		console.error(`[ERROR] Failed to build ${resourceName}`, error);
-		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);
 	}
 }
@@ -291,7 +301,7 @@ async function buildResource(sourcePath) {
 /**
  * Generates fxmanifest.lua based on architectural constraints.
  */
-function generateManifest(outDirectory, manifestData) {
+function generateManifest(outDir, manifestData) {
 	const lines = [
 		`-- TypeRP Framework: Generated by build-runtime.mjs`,
 		`fx_version 'cerulean'`,
@@ -321,13 +331,12 @@ function generateManifest(outDirectory, manifestData) {
 	}
 
 	const manifestContent = lines.join("\n");
-	const manifestPath = path.join(outDirectory, "fxmanifest.lua");
+	const manifestPath = path.join(outDir, "fxmanifest.lua");
 	fs.writeFileSync(manifestPath, manifestContent);
 
 	// Validation
 	if (!fs.existsSync(manifestPath) || fs.statSync(manifestPath).size === 0) {
 		console.error(`[VALIDATION ERROR] Manifest missing or empty at ${manifestPath}`);
-		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);
 	}
 }
@@ -349,9 +358,7 @@ async function run() {
 	console.log(`✅ TypeRP Framework Build Complete (${resources.length} resource(s)).`);
 }
 
-// eslint-disable-next-line unicorn/prefer-top-level-await
 run().catch((error) => {
 	console.error(error);
-	// eslint-disable-next-line unicorn/no-process-exit
 	process.exit(1);
 });
