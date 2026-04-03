@@ -1,59 +1,56 @@
 import { EnvironmentConfigSchema, FrameworkConfigSchema } from "@typerp/contracts/config/schemas";
 import type { EnvironmentConfig, FrameworkConfig } from "@typerp/contracts/config/types";
 
+import { createCachedRuntimeConfigLoader } from "@typerp/config";
+
 const FRAMEWORK_CONFIG_FILE = "config/framework.config.json";
 const ENVIRONMENT_CONFIG_FILE = "config/environment.config.json";
 
-let cachedFrameworkConfig: FrameworkConfig | null = null;
-let cachedEnvironmentConfig: EnvironmentConfig | null = null;
+const frameworkConfigLoaders = new Map<string, () => FrameworkConfig>();
+const environmentConfigLoaders = new Map<string, () => EnvironmentConfig>();
 
-function readResourceJson(resourceName: string, relativePath: string): unknown {
-	const raw = LoadResourceFile(resourceName, relativePath);
-	if (typeof raw !== "string") {
-		throw new TypeError(`[Kernel] Missing runtime JSON file: ${resourceName}/${relativePath}`);
+function createResourceFileLoader(resourceName: string) {
+	return (relativePath: string): string | null => LoadResourceFile(resourceName, relativePath);
+}
+
+function getFrameworkConfigLoader(resourceName: string): () => FrameworkConfig {
+	const cachedLoader = frameworkConfigLoaders.get(resourceName);
+	if (cachedLoader) {
+		return cachedLoader;
 	}
 
-	try {
-		return JSON.parse(raw) as unknown;
-	} catch (error) {
-		throw new Error(
-			`[Kernel] Invalid JSON in ${resourceName}/${relativePath}: ${
-				error instanceof Error ? error.message : String(error)
-			}`,
-		);
+	const nextLoader = createCachedRuntimeConfigLoader({
+		loadFile: createResourceFileLoader(resourceName),
+		relativePath: FRAMEWORK_CONFIG_FILE,
+		schema: FrameworkConfigSchema,
+		sourceLabel: "Kernel",
+	});
+	frameworkConfigLoaders.set(resourceName, nextLoader);
+	return nextLoader;
+}
+
+function getEnvironmentConfigLoader(resourceName: string): () => EnvironmentConfig {
+	const cachedLoader = environmentConfigLoaders.get(resourceName);
+	if (cachedLoader) {
+		return cachedLoader;
 	}
+
+	const nextLoader = createCachedRuntimeConfigLoader({
+		loadFile: createResourceFileLoader(resourceName),
+		relativePath: ENVIRONMENT_CONFIG_FILE,
+		schema: EnvironmentConfigSchema,
+		sourceLabel: "Kernel",
+	});
+	environmentConfigLoaders.set(resourceName, nextLoader);
+	return nextLoader;
 }
 
 export function loadFrameworkConfig(resourceName: string): FrameworkConfig {
-	if (cachedFrameworkConfig) {
-		return cachedFrameworkConfig;
-	}
-
-	const rawConfig = readResourceJson(resourceName, FRAMEWORK_CONFIG_FILE);
-	const parsed = FrameworkConfigSchema.safeParse(rawConfig);
-	if (!parsed.success) {
-		throw new Error(`[Kernel] Invalid framework config. ${JSON.stringify(parsed.error.format())}`);
-	}
-
-	cachedFrameworkConfig = parsed.data;
-	return cachedFrameworkConfig;
+	return getFrameworkConfigLoader(resourceName)();
 }
 
 function loadEnvironmentConfig(resourceName: string): EnvironmentConfig {
-	if (cachedEnvironmentConfig) {
-		return cachedEnvironmentConfig;
-	}
-
-	const rawConfig = readResourceJson(resourceName, ENVIRONMENT_CONFIG_FILE);
-	const parsed = EnvironmentConfigSchema.safeParse(rawConfig);
-	if (!parsed.success) {
-		throw new Error(
-			`[Kernel] Invalid environment config. ${JSON.stringify(parsed.error.format())}`,
-		);
-	}
-
-	cachedEnvironmentConfig = parsed.data;
-	return cachedEnvironmentConfig;
+	return getEnvironmentConfigLoader(resourceName)();
 }
 
 export const frameworkConfig = loadFrameworkConfig(GetCurrentResourceName());

@@ -1,5 +1,5 @@
-import type { Character } from "@typerp/contracts/identity/types";
 import { IdentityRpc } from "@typerp/contracts/identity/rpc";
+import type { Character } from "@typerp/contracts/identity/types";
 import { callRpc, getGlobalConfig, getKernelExports, initResourceLocales } from "@typerp/sdk";
 
 import {
@@ -10,9 +10,8 @@ import {
 } from "../shared/job.shared";
 import { loadJobConfig } from "./config.server";
 
-const currentResourceName = GetCurrentResourceName();
-const jobConfig = loadJobConfig(currentResourceName);
-const tJob = initResourceLocales(currentResourceName, "job");
+const jobConfig = loadJobConfig();
+const tJob = initResourceLocales("job");
 const frameworkConfig = getGlobalConfig();
 
 const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [

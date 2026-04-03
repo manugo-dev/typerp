@@ -35,3 +35,4 @@ Kernel ownership rule:
 - `typerp/resources/core/kernel` owns DB/Redis/BullMQ initialization.
 - Gameplay resources should not initialize those infrastructure clients directly.
 - Stateful cross-resource capabilities are consumed through runtime exports/public APIs.
+- Resource config/locales access should be centralized via shared packages and `@typerp/sdk` helpers.

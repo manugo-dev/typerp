@@ -6,7 +6,8 @@
 	"main": "src/server/main.server.ts",
 	"dependencies": {
 		"@typerp/contracts": "workspace:*",
-		"@typerp/sdk": "workspace:*"
+		"@typerp/sdk": "workspace:*",
+		"zod": "next"
 	},
 	"fxmanifest": {
 		"dependencies": [

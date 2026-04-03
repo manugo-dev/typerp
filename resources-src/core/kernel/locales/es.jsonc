@@ -1,4 +1,8 @@
 {
+	"global": {
+		"boot.ready": "Inicializacion del servidor completada.",
+		"boot.starting": "Inicializando modulo..."
+	},
 	"kernel": {
 		"boot.ready": "El runtime del kernel esta listo.",
 		"resource.registered": "Recurso {name} registrado."
