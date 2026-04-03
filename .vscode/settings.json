@@ -7,7 +7,7 @@
 		"eslint.config.ts": "eslint.config.ts,.eslintignore"
 	},
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "always"
+		"source.fixAll.eslint": "always",
 	},
 	"files.exclude": {
 		"**/*.tsbuildinfo": true
