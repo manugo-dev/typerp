@@ -2,6 +2,8 @@
 	"name": "typerp",
 	"version": "0.1.0",
 	"locale": "en",
+	"fallbackLocale": "en",
+	"supportedLocales": ["en", "es"],
 	"timezone": "UTC",
 	"debugMode": true,
 	"logLevel": "info",

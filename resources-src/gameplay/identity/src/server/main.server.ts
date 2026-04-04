@@ -1,6 +1,12 @@
 import { IdentityRpc } from "@typerp/contracts/identity/rpc";
 import type { Character, CharacterCreate } from "@typerp/contracts/identity/types";
-import { callRpc, getGlobalConfig, getKernelExports, initResourceLocales } from "@typerp/sdk";
+import {
+	callRpc,
+	getActiveLocale,
+	getGlobalConfig,
+	getKernelExports,
+	initResourceLocales,
+} from "@typerp/sdk";
 
 import { loadIdentityConfig } from "./config.server";
 
@@ -10,7 +16,7 @@ const t = initResourceLocales("identity");
 const frameworkConfig = getGlobalConfig();
 
 console.log(
-	`[${identityConfig.resourceLogLabel}] ${t("boot.starting")} locale=${frameworkConfig.locale}, maxCharacters=${identityConfig.maxCharactersPerLicense}`,
+	`[${identityConfig.resourceLogLabel}] ${t("boot.starting")} locale=${getActiveLocale()}, maxCharacters=${identityConfig.maxCharactersPerLicense}`,
 );
 
 getKernelExports().registerServerResource("gameplay-identity", {

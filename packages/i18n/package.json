@@ -5,6 +5,9 @@
 	"type": "module",
 	"main": "src/index.ts",
 	"sideEffects": false,
+	"dependencies": {
+		"i18next": "^25.6.0"
+	},
 	"scripts": {
 		"lint": "eslint .",
 		"typecheck": "tsc --noEmit",

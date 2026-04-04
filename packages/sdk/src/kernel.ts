@@ -1,5 +1,6 @@
 import type { FrameworkConfig } from "@typerp/contracts/config/types";
 import type { KernelServerExports } from "@typerp/contracts/kernel/exports";
+import type { KernelLocaleSnapshot } from "@typerp/contracts/kernel/locales";
 
 const KERNEL_RESOURCE = "typerp-core-kernel";
 
@@ -23,4 +24,20 @@ export function getKernelExports(): KernelServerExports {
 
 export function getGlobalConfig(): FrameworkConfig {
 	return getKernelExports().getFrameworkConfig();
+}
+
+export function getActiveLocale(): string {
+	return getKernelExports().getActiveLocale();
+}
+
+export function setFrameworkLocale(locale: string): string {
+	return getKernelExports().setActiveLocale(locale);
+}
+
+export function getGlobalLocaleSnapshot(): KernelLocaleSnapshot {
+	return getKernelExports().getGlobalLocaleSnapshot();
+}
+
+export function tGlobal(key: string, interpolationValues?: Record<string, unknown>): string {
+	return getKernelExports().tGlobal(key, interpolationValues);
 }

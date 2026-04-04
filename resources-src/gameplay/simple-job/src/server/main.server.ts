@@ -1,6 +1,6 @@
 import { IdentityRpc } from "@typerp/contracts/identity/rpc";
 import type { Character } from "@typerp/contracts/identity/types";
-import { callRpc, getGlobalConfig, getKernelExports, initResourceLocales } from "@typerp/sdk";
+import { callRpc, getActiveLocale, getKernelExports, initResourceLocales } from "@typerp/sdk";
 
 import {
 	JOB_RESOURCE_NAME,
@@ -12,7 +12,6 @@ import { loadJobConfig } from "./config.server";
 
 const jobConfig = loadJobConfig();
 const tJob = initResourceLocales("job");
-const frameworkConfig = getGlobalConfig();
 
 const JOB_TEMPLATES: Omit<JobAssignment, "jobId">[] = [
 	{
@@ -124,7 +123,7 @@ on("playerDropped", () => {
 
 console.log(`[${JOB_RESOURCE_NAME}] Initializing simple job module...`);
 console.log(`[${JOB_RESOURCE_NAME}] ${tJob("boot.starting")}`);
-console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${frameworkConfig.locale}`);
+console.log(`[${JOB_RESOURCE_NAME}] Config — locale: ${getActiveLocale()}`);
 
 getKernelExports().registerServerResource("gameplay-simple-job", {
 	name: JOB_RESOURCE_NAME,

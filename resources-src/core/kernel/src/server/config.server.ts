@@ -1,7 +1,6 @@
+import { createCachedRuntimeConfigLoader } from "@typerp/config";
 import { EnvironmentConfigSchema, FrameworkConfigSchema } from "@typerp/contracts/config/schemas";
 import type { EnvironmentConfig, FrameworkConfig } from "@typerp/contracts/config/types";
-
-import { createCachedRuntimeConfigLoader } from "@typerp/config";
 
 const FRAMEWORK_CONFIG_FILE = "config/framework.config.json";
 const ENVIRONMENT_CONFIG_FILE = "config/environment.config.json";

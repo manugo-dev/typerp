@@ -16,9 +16,11 @@ const FRAMEWORK_CONFIG_PATH = path.join(
 );
 const DEFAULT_FRAMEWORK_CONFIG = {
 	debugMode: false,
+	fallbackLocale: "en",
 	locale: "en",
 	logLevel: "info",
 	name: "typerp",
+	supportedLocales: ["en"],
 	timezone: "UTC",
 	version: "0.0.0",
 };
@@ -230,24 +232,28 @@ async function buildResource(sourcePath) {
 			},
 		};
 
+		const buildConfig = {
+			bundle: true,
+			conditions: ["module", "import", "node", "default"],
+			external: ["node:*"],
+			format: "cjs",
+			mainFields: ["module", "main"],
+			metafile: true,
+			minifyIdentifiers: false,
+			minifySyntax: true,
+			minifyWhitespace: true,
+			platform: "node",
+			plugins: [workspaceResolverPlugin],
+			target: "node22",
+			treeShaking: true,
+		};
+
 		// 1. Build Server
 		if (hasServer) {
 			const serverResult = await esbuild.build({
-				bundle: true,
-				conditions: ["module", "import", "node", "default"],
+				...buildConfig,
 				entryPoints: [sourceServer],
-				external: ["node:*"],
-				format: "cjs",
-				mainFields: ["module", "main"],
-				metafile: true,
-				minifyIdentifiers: false,
-				minifySyntax: true,
-				minifyWhitespace: true,
 				outfile: path.join(distDir, "server.js"),
-				platform: "node",
-				plugins: [workspaceResolverPlugin],
-				target: "node22",
-				treeShaking: true,
 			});
 			buildManifest.server = true;
 			if (serverResult.metafile) {
@@ -261,20 +267,9 @@ async function buildResource(sourcePath) {
 		// 2. Build Client
 		if (hasClient) {
 			const clientResult = await esbuild.build({
-				bundle: true,
-				conditions: ["module", "import", "browser", "default"],
+				...buildConfig,
 				entryPoints: [sourceClient],
-				format: "cjs",
-				mainFields: ["module", "main"],
-				metafile: true,
-				minifyIdentifiers: false,
-				minifySyntax: true,
-				minifyWhitespace: true,
 				outfile: path.join(distDir, "client.js"),
-				platform: "browser",
-				plugins: [workspaceResolverPlugin],
-				target: "es2022",
-				treeShaking: true,
 			});
 			buildManifest.client = true;
 			if (clientResult.metafile) {
